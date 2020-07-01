@@ -1,14 +1,13 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MainSceneController : MonoBehaviour
+public class RaceSceneController : MonoBehaviour
 {
-    public MainScreen MainScreen;
-
+    public RaceScreen RaceScreen;
+    
     public enum ScreenState
     {
-        Main
+        Race
     }
 
     public ScreenState? CurrentState = null;
@@ -19,9 +18,8 @@ public class MainSceneController : MonoBehaviour
         StartCoroutine($"{CurrentState}State");
     }
 
-    IEnumerator MainState()
+    IEnumerator RaceState()
     {
-        MainScreen.Initialize("Hello");
         yield break;
     }
 }
