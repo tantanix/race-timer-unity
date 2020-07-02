@@ -23,7 +23,7 @@ namespace Assets.Tcs.RaceTimer.Import
             this.raceService.AddTeamPlayer(race.Id, team.Id, player.Id);
 
             this.raceService.AddPlayerTime(race.Id, player.Id, TimeType.Start,
-                new Time { Hours = 0, Minutes = 0, Seconds = 0, Milliseconds = 0 });
+                new LogTime { Hours = 0, Minutes = 0, Seconds = 0, Milliseconds = 0 });
         }
     }
 }

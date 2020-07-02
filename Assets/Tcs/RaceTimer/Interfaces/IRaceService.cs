@@ -9,7 +9,7 @@ namespace Assets.Tcs.RaceTimer.Interfaces
         Player CreatePlayer(string id, string name, string no);
         Team CreateTeam(string id, string name);
         TeamPlayer AddTeamPlayer(string raceId, string teamId, string playerId);
-        PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, Time time);
+        PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time);
         void SaveRace(string raceId);
     }
 }

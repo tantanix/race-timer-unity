@@ -21,7 +21,7 @@ namespace Assets.Tcs.RaceTimer.Services
             _teamRepository = teamRepository;
         }
 
-        public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, Time time)
+        public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time)
         {
             throw new NotImplementedException();
         }

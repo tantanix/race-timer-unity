@@ -1,16 +1,18 @@
-﻿using System;
+﻿using Assets.Tcs.RaceTimer.Models;
+using System;
 using UnityEngine;
 
 public class Clock : MonoBehaviour
 {
-    public int Hours, Minutes, Seconds, Milliseconds;
+    public LogTime CurrentTime;
 
     void Update()
     {
         var date = DateTime.Now;
-        this.Hours = date.Hour;
-        this.Minutes = date.Minute;
-        this.Seconds = date.Second;
-        this.Milliseconds = date.Millisecond;
+
+        CurrentTime.Hours = date.Hour;
+        CurrentTime.Minutes = date.Minute;
+        CurrentTime.Seconds = date.Second;
+        CurrentTime.Milliseconds = date.Millisecond;
     }
 }

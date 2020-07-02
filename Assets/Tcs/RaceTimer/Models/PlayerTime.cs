@@ -8,6 +8,6 @@ namespace Assets.Tcs.RaceTimer.Models
         public Player Player { get; set; }
         public TimeType Type { get; set; }
         public int Stage { get; set; }
-        public Time Time { get; set; }
+        public LogTime Time { get; set; }
     }
 }

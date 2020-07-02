@@ -1,6 +1,6 @@
 ﻿namespace Assets.Tcs.RaceTimer.Models
 {
-    public struct Time
+    public struct LogTime
     {
         public int Hours { get; set; }
         public int Minutes { get; set; }

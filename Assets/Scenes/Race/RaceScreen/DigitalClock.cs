@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class DigitalClock : MonoBehaviour
@@ -21,8 +19,9 @@ public class DigitalClock : MonoBehaviour
 
     private string GetCurrentTime()
     {
-        var hours = _clock.Hours > 12 ? _clock.Hours - 12 : _clock.Hours;
-        var timeOfDay = _clock.Hours > 12 ? "PM" : "AM";
-        return $"{hours:00}:{_clock.Minutes:00}:{_clock.Seconds:00}:{_clock.Milliseconds:0000} {timeOfDay}";
+        var time = _clock.CurrentTime;
+        var hours = time.Hours > 12 ? time.Hours - 12 : time.Hours;
+        var timeOfDay = time.Hours > 12 ? "PM" : "AM";
+        return $"{hours:00}:{time.Minutes:00}:{time.Seconds:00}:{time.Milliseconds:0000} {timeOfDay}";
     }
 }
