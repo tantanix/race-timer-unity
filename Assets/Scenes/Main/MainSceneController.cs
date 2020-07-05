@@ -21,7 +21,6 @@ public class MainSceneController : MonoBehaviour
 
     IEnumerator MainState()
     {
-        MainScreen.Initialize("Hello");
         yield break;
     }
 }

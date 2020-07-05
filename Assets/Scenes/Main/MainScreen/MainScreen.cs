@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MainScreen : MonoBehaviour
 {
-    public void Initialize(string text)
+    public MainSceneController Controller;
+
+    public void CreateRace()
     {
-        transform.Find("InputField").GetComponent<InputField>().text = text;
+        SceneManager.LoadScene("RaceManagerScene");
     }
 }
