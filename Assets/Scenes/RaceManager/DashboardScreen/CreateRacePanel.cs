@@ -1,18 +1,62 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Assets.Scenes;
+using System;
+using System.Globalization;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class CreateRacePanel : MonoBehaviour
+public class CreateRacePanel : AppBase
 {
-    // Start is called before the first frame update
-    void Start()
+    public Color32 ValidBgColor;
+    public Color32 RequiredBgColor;
+    public RaceManagerSceneController Controller;
+    public TMP_InputField RaceNameInput;
+    public TMP_InputField NumberOfStagesInput;
+    public TMP_InputField EventDateInput;
+    public TMP_InputField LocationInput;
+
+    public Race CreatedRace;
+
+    public void OnCreateRace()
     {
+        var numberOfStages = 0;
+        var eventDate = DateTime.Now;
+        var culture = CultureInfo.CreateSpecificCulture("en-US");
+        var styles = DateTimeStyles.None;
+
+        var isRaceNameValid = RaceNameInput.text.Length > 0;
+        var isNumberOfStagesValid = NumberOfStagesInput.text.Length > 0 && int.TryParse(NumberOfStagesInput.text, out numberOfStages);
+        var isEventDateValid = EventDateInput.text.Length > 0 && DateTime.TryParse(EventDateInput.text, culture, styles, out eventDate);
         
+        RaceNameInput.GetComponent<Image>().color = isRaceNameValid ? ValidBgColor : RequiredBgColor;
+        NumberOfStagesInput.GetComponent<Image>().color = isNumberOfStagesValid ? ValidBgColor : RequiredBgColor;
+        EventDateInput.GetComponent<Image>().color = isEventDateValid ? ValidBgColor : RequiredBgColor;
+
+        if (!isRaceNameValid || !isNumberOfStagesValid || !isEventDateValid)
+            return;
+
+        CreatedRace = new Race()
+        {
+            Name = RaceNameInput.text,
+            EventDate = eventDate,
+            Stages = numberOfStages
+        };
+
+        IsDone = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void Show()
     {
+        IsDone = false;
         
+        gameObject.SetActive(true);
+        IsShown = true;
     }
+
+    public override void Hide()
+    {
+        gameObject.SetActive(false);
+        IsShown = false;
+    }
+
 }

@@ -13,6 +13,13 @@ public class RaceManagerSceneController : MonoBehaviour
 
     public ScreenState? CurrenState = null;
 
+    private RaceTimerServices _raceTimerServices;
+
+    void Awake()
+    {
+        _raceTimerServices = FindObjectOfType<RaceTimerServices>();
+    }
+
     public void ChangeState(ScreenState state)
     {
         CurrenState = state;
@@ -21,12 +28,25 @@ public class RaceManagerSceneController : MonoBehaviour
 
     IEnumerator DashboardState()
     {
+        DashboardScreen.MainPanel.CreateRacePanel.Hide();
         yield break;
     }
 
     IEnumerator CreateRaceState()
     {
-        DashboardScreen.MainPanel.ShowPanel(MainPanel.Panel.CreateRace);
-        yield break;
+        DashboardScreen.MainPanel.CreateRacePanel.Show();
+
+        var createRacePanel = DashboardScreen.MainPanel.CreateRacePanel;
+        while (!createRacePanel.IsDone)
+        {
+            yield return null;
+        }
+
+        var createdRace = createRacePanel.CreatedRace;
+        var raceService = _raceTimerServices.RaceService;
+        raceService.CreateRace(createdRace);
+
+        DashboardScreen.MainPanel.CreateRacePanel.Hide();
+
     }
 }

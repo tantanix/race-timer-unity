@@ -1,5 +1,6 @@
 ﻿using Assets.Tcs.RaceTimer.Exceptions;
 using Assets.Tcs.RaceTimer.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace Assets.Tcs.RaceTimer.Repository
     {
         private readonly List<Player> players = new List<Player>();
 
-        public Player CreatePlayer(string id, string name, string no)
+        public Player CreatePlayer(Guid id, string name, string no)
         {
             var player = new Player
             {
@@ -23,9 +24,9 @@ namespace Assets.Tcs.RaceTimer.Repository
             return player;
         }
 
-        public Player Get(string id)
+        public Player Get(Guid id)
         {
-            var player = this.players.FirstOrDefault(p => p.Id == id);
+            var player = this.players.FirstOrDefault(p => Equals(p.Id, id));
             if (player == null)
                 throw new PlayerNotFoundException();
 

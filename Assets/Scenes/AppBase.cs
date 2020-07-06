@@ -1,0 +1,15 @@
+﻿using UnityEngine;
+
+namespace Assets.Scenes
+{
+    public abstract class AppBase : MonoBehaviour
+    {
+        public bool IsDone = false;
+        public bool HasSelected = false;
+        public bool IsShown = false;
+
+        public abstract void Show();
+
+        public abstract void Hide();
+    }
+}
