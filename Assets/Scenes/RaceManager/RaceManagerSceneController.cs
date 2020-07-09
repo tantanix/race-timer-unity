@@ -8,7 +8,8 @@ public class RaceManagerSceneController : MonoBehaviour
     public enum ScreenState
     {
         Dashboard,
-        CreateRace
+        CreateRace,
+        LoadRace
     }
 
     public ScreenState? CurrenState = null;
@@ -28,12 +29,13 @@ public class RaceManagerSceneController : MonoBehaviour
 
     IEnumerator DashboardState()
     {
-        DashboardScreen.MainPanel.CreateRacePanel.Hide();
+        DashboardScreen.MainPanel.ShowAllPanels(false);
         yield break;
     }
 
     IEnumerator CreateRaceState()
     {
+        DashboardScreen.MainPanel.ShowAllPanels(false);
         DashboardScreen.MainPanel.CreateRacePanel.Show();
 
         var createRacePanel = DashboardScreen.MainPanel.CreateRacePanel;
@@ -46,7 +48,14 @@ public class RaceManagerSceneController : MonoBehaviour
         var raceService = _raceTimerServices.RaceService;
         raceService.CreateRace(createdRace);
 
-        DashboardScreen.MainPanel.CreateRacePanel.Hide();
+        DashboardScreen.MainPanel.CreateRacePanel.Show(false);
+    }
 
+    IEnumerator LoadRaceState()
+    {
+        DashboardScreen.MainPanel.ShowAllPanels(false);
+
+        DashboardScreen.MainPanel.RaceDashboardPanel.Show(true);
+        yield break;
     }
 }

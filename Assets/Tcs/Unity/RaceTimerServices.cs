@@ -1,11 +1,12 @@
 ﻿using Assets.Tcs.RaceTimer.Repository;
 using Assets.Tcs.RaceTimer.Services;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class RaceTimerServices : MonoBehaviour
 {
     public RaceService RaceService;
+    
+    private Race _currentRace;
 
     void Awake()
     {
@@ -14,5 +15,10 @@ public class RaceTimerServices : MonoBehaviour
         var teamRepo = new TeamRepository();
 
         RaceService = new RaceService(raceRepo, playerRepo, teamRepo);
+    }
+
+    public void LoadRace(Race race)
+    {
+        _currentRace = race;
     }
 }

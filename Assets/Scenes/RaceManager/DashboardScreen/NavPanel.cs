@@ -10,7 +10,7 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
     
     private RaceService _raceService;
 
-    void Awake()
+    void Start()
     {
         _raceService = FindObjectOfType<RaceTimerServices>().RaceService;
         _raceService.Subscribe(this);
@@ -43,5 +43,7 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
         go.transform.localScale = Vector3.one;
         go.transform.SetParent(ButtonContainer, false);
         go.transform.SetSiblingIndex(1);
+
+        go.GetComponent<RaceButton>().Race = race;
     }
 }

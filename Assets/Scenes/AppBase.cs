@@ -8,8 +8,6 @@ namespace Assets.Scenes
         public bool HasSelected = false;
         public bool IsShown = false;
 
-        public abstract void Show();
-
-        public abstract void Hide();
+        public abstract void Show(bool flag = true);
     }
 }

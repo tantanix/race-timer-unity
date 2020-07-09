@@ -45,18 +45,15 @@ public class CreateRacePanel : AppBase
         IsDone = true;
     }
 
-    public override void Show()
+    public override void Show(bool flag = true)
     {
-        IsDone = false;
-        
-        gameObject.SetActive(true);
-        IsShown = true;
-    }
+        if (flag)
+        {
+            IsDone = false;
+        }
 
-    public override void Hide()
-    {
-        gameObject.SetActive(false);
-        IsShown = false;
+        gameObject.SetActive(flag);
+        IsShown = flag;
     }
 
 }
