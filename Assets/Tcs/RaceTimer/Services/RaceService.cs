@@ -1,10 +1,10 @@
-﻿using Assets.Tcs.RaceTimer.Interfaces;
-using Assets.Tcs.RaceTimer.Models;
-using Assets.Tcs.RaceTimer.Repository;
+﻿using Tcs.RaceTimer.Interfaces;
+using Tcs.RaceTimer.Models;
+using Tcs.RaceTimer.Repository;
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Tcs.RaceTimer.Services
+namespace Tcs.RaceTimer.Services
 {
     public class RaceService : IRaceService, IObservable<Race>
     {
@@ -26,29 +26,24 @@ namespace Assets.Tcs.RaceTimer.Services
             _observers = new List<IObserver<Race>>();
         }
 
-        public PlayerTime AddPlayerTime(Guid raceId, Guid playerId, TimeType type, LogTime time)
+        public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time)
         {
             throw new NotImplementedException();
         }
 
-        public TeamPlayer AddTeamPlayer(Guid raceId, Guid teamId, Guid playerId)
+        public TeamPlayer AddTeamPlayer(string raceId, string teamId, string playerId)
         {
             throw new NotImplementedException();
         }
 
-        public Player CreatePlayer(Guid id, string name, string no)
+        public Player CreatePlayer(string id, string name, string no)
         {
             throw new NotImplementedException();
         }
 
-        public Race CreateRace(Guid id, string name, DateTime eventDate, int stages)
+        public Race CreateRace(string name, long eventDate, int stages)
         {
-            throw new NotImplementedException();
-        }
-
-        public Race CreateRace(Race race)
-        {
-            var newRace = _raceRepository.CreateRace(race.Name, race.EventDate, race.Stages);
+            var newRace = _raceRepository.CreateRace(name, eventDate, stages);
             foreach (var observer in _observers)
             {
                 observer.OnNext(newRace);
@@ -57,7 +52,18 @@ namespace Assets.Tcs.RaceTimer.Services
             return newRace;
         }
 
-        public Team CreateTeam(Guid id, string name)
+        public Race CreateRace(string id, string name, long eventDate, int stages)
+        {
+            var newRace = _raceRepository.CreateRace(id, name, eventDate, stages);
+            foreach (var observer in _observers)
+            {
+                observer.OnNext(newRace);
+            }
+
+            return newRace;
+        }
+
+        public Team CreateTeam(string id, string name)
         {
             return _teamRepository.CreateTeam(id, name);
         }

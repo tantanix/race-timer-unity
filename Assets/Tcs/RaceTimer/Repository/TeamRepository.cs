@@ -1,16 +1,15 @@
-﻿using Assets.Tcs.RaceTimer.Exceptions;
-using Assets.Tcs.RaceTimer.Models;
-using System;
+﻿using Tcs.RaceTimer.Exceptions;
+using Tcs.RaceTimer.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Assets.Tcs.RaceTimer.Repository
+namespace Tcs.RaceTimer.Repository
 {
     public class TeamRepository
     {
         private readonly List<Team> teams = new List<Team>();
 
-        public Team CreateTeam(Guid id, string name)
+        public Team CreateTeam(string id, string name)
         {
             var team = new Team
             {

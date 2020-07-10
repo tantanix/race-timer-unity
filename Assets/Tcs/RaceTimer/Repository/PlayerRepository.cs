@@ -1,10 +1,10 @@
-﻿using Assets.Tcs.RaceTimer.Exceptions;
-using Assets.Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tcs.RaceTimer.Models;
 
-namespace Assets.Tcs.RaceTimer.Repository
+namespace Tcs.RaceTimer.Repository
 {
     public class PlayerRepository
     {

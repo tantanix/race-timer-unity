@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
-namespace Assets.Tcs.RaceTimer.Models
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public class PlayerTime
     {
-        public Race Race { get; set; }
-        public Player Player { get; set; }
-        public TimeType Type { get; set; }
-        public int Stage { get; set; }
-        public LogTime Time { get; set; }
+        public Race Race;
+        public Player Player;
+        public TimeType Type;
+        public int Stage;
+        public LogTime Time;
     }
 }

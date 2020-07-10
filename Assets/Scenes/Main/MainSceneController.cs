@@ -21,6 +21,7 @@ public class MainSceneController : MonoBehaviour
 
     IEnumerator MainState()
     {
+        RaceTimerServices.GetInstance().Initialize();
         yield break;
     }
 }

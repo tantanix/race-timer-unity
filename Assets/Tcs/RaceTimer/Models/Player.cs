@@ -1,12 +1,13 @@
 ﻿using System;
 
-namespace Assets.Tcs.RaceTimer.Models
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public class Player
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Team { get; set; }
-        public string No { get; set; }
+        public Guid Id;
+        public string Name;
+        public string Team;
+        public string No;
     }
 }

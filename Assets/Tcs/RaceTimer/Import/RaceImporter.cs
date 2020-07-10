@@ -1,9 +1,9 @@
-﻿using Assets.Tcs.RaceTimer.Models;
-using Assets.Tcs.RaceTimer.Repository;
-using Assets.Tcs.RaceTimer.Services;
+﻿using Tcs.RaceTimer.Models;
+using Tcs.RaceTimer.Repository;
+using Tcs.RaceTimer.Services;
 using System;
 
-namespace Assets.Tcs.RaceTimer.Import
+namespace Tcs.RaceTimer.Import
 {
     public class RaceImporter
     {
@@ -16,14 +16,14 @@ namespace Assets.Tcs.RaceTimer.Import
 
         public void Import()
         {
-            var race = this.raceService.CreateRace(Guid.NewGuid(), "Carcar Enduro Series", DateTime.Now, 4);
-            var player = this.raceService.CreatePlayer(Guid.NewGuid(), "Player 1", "1");
-            var team = this.raceService.CreateTeam(Guid.NewGuid(), "TCS");
+            //var race = this.raceService.CreateRace(Guid.NewGuid(), "Carcar Enduro Series", DateTime.Now, 4);
+            //var player = this.raceService.CreatePlayer(Guid.NewGuid(), "Player 1", "1");
+            //var team = this.raceService.CreateTeam(Guid.NewGuid(), "TCS");
 
-            this.raceService.AddTeamPlayer(race.Id, team.Id, player.Id);
+            //this.raceService.AddTeamPlayer(race.Id, team.Id, player.Id);
 
-            this.raceService.AddPlayerTime(race.Id, player.Id, TimeType.Start,
-                new LogTime { Hours = 0, Minutes = 0, Seconds = 0, Milliseconds = 0 });
+            //this.raceService.AddPlayerTime(race.Id, player.Id, TimeType.Start,
+            //    new LogTime { Hours = 0, Minutes = 0, Seconds = 0, Milliseconds = 0 });
         }
     }
 }

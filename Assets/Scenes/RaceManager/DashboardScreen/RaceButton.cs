@@ -1,23 +1,21 @@
-﻿using UnityEngine;
+﻿using Tcs.RaceTimer.Models;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class RaceButton : MonoBehaviour
 {
     public Race Race;
 
-    private RaceManagerSceneController _controller;
-    private RaceTimerServices _raceTimerServices;
     private Button _button;
 
     void Awake()
     {
-        _controller = FindObjectOfType<RaceManagerSceneController>();
-        _raceTimerServices = FindObjectOfType<RaceTimerServices>();
-        _button = this.GetComponent<Button>();
+        _button = GetComponent<Button>();
     }
 
     void Start()
     {
+        GetComponent<Image>().SetNativeSize();
         _button.onClick.AddListener(OnClickRaceButton);
     }
 
@@ -31,7 +29,9 @@ public class RaceButton : MonoBehaviour
         if (Race == null)
             throw new UnityException("No race data mapped to this button");
 
-        _raceTimerServices.LoadRace(Race);
-        _controller.ChangeState(RaceManagerSceneController.ScreenState.LoadRace);
+        RaceTimerServices.GetInstance().LoadRace(Race);
+
+        var controller = FindObjectOfType<RaceManagerSceneController>();
+        controller.ChangeState(RaceManagerSceneController.ScreenState.LoadRace);
     }
 }

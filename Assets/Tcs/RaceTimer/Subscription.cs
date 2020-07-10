@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Assets.Tcs.RaceTimer
+namespace Tcs.RaceTimer
 {
     internal class Subscription<T> : IDisposable
     {

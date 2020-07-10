@@ -1,6 +1,7 @@
 ﻿using Assets.Scenes;
 using System;
 using System.Globalization;
+using Tcs.RaceTimer.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,8 +15,6 @@ public class CreateRacePanel : AppBase
     public TMP_InputField NumberOfStagesInput;
     public TMP_InputField EventDateInput;
     public TMP_InputField LocationInput;
-
-    public Race CreatedRace;
 
     public void OnCreateRace()
     {
@@ -35,14 +34,18 @@ public class CreateRacePanel : AppBase
         if (!isRaceNameValid || !isNumberOfStagesValid || !isEventDateValid)
             return;
 
-        CreatedRace = new Race()
+        try
         {
-            Name = RaceNameInput.text,
-            EventDate = eventDate,
-            Stages = numberOfStages
-        };
-
-        IsDone = true;
+            var race = RaceTimerServices.GetInstance().RaceService.CreateRace(RaceNameInput.text, eventDate.Ticks, numberOfStages);
+            if (race != null)
+                IsDone = true;
+            else
+                throw new Exception("Failed to create race");
+        } 
+        catch (Exception ex)
+        {
+            throw new UnityException(ex.Message);
+        }
     }
 
     public override void Show(bool flag = true)

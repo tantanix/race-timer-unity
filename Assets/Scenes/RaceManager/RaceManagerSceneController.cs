@@ -44,10 +44,6 @@ public class RaceManagerSceneController : MonoBehaviour
             yield return null;
         }
 
-        var createdRace = createRacePanel.CreatedRace;
-        var raceService = _raceTimerServices.RaceService;
-        raceService.CreateRace(createdRace);
-
         DashboardScreen.MainPanel.CreateRacePanel.Show(false);
     }
 

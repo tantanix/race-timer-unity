@@ -1,4 +1,4 @@
-﻿using Assets.Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.Models;
 using System;
 using UnityEngine;
 using UnityEngine.UI;

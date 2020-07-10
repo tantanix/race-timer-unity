@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Assets.Tcs.RaceTimer.Models
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public class RaceData
     {
-        public Race Race { get; set; }
-        public List<Player> Players { get; set; }
-        public List<Team> Teams { get; set; }
-        public List<TeamPlayer> TeamPlayers { get; set; }
-        public List<PlayerTime> PlayerTimes { get; set; }
+        public Race Race;
+        public List<Player> Players;
+        public List<Team> Teams;
+        public List<TeamPlayer> TeamPlayers;
+        public List<PlayerTime> PlayerTimes;
     }
 }

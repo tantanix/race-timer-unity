@@ -1,5 +1,8 @@
-﻿namespace Assets.Tcs.RaceTimer.Models
+﻿using System;
+
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public enum TimeType
     {
         Start,

@@ -1,7 +1,8 @@
-﻿using Assets.Tcs.RaceTimer.Services;
+﻿using Tcs.RaceTimer.Services;
 using System;
 using TMPro;
 using UnityEngine;
+using Tcs.RaceTimer.Models;
 
 public class NavPanel : MonoBehaviour, IObserver<Race>
 {
@@ -38,6 +39,12 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
 
     private void CreateRaceButton(Race race)
     {
+        if (race == null)
+            return;
+
+        if (string.IsNullOrEmpty(race.Name))
+            return;
+
         var go = ObjectPool.Instance.GetObjectForType("RaceButton", false);
         go.GetComponentInChildren<TMP_Text>().text = race.Name.Substring(0, 1).ToUpperInvariant();
         go.transform.localScale = Vector3.one;

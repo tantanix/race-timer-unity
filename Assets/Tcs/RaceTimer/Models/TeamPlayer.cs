@@ -1,9 +1,12 @@
-﻿namespace Assets.Tcs.RaceTimer.Models
+﻿using System;
+
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public class TeamPlayer
     {
-        public Race Race { get; set; }
-        public Team Team { get; set; }
-        public Player Player { get; set; }
+        public Race Race;
+        public Team Team;
+        public Player Player;
     }
 }

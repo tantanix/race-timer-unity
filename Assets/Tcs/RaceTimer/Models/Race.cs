@@ -1,9 +1,13 @@
 ﻿using System;
 
-public class Race
+namespace Tcs.RaceTimer.Models
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public DateTime EventDate { get; set; }
-    public int Stages { get; set; }
+    [Serializable]
+    public class Race
+    {
+        public string Id;
+        public string Name;
+        public long EventDate;
+        public int Stages;
+    }
 }

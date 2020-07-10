@@ -1,15 +1,16 @@
-﻿using Assets.Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.Models;
 using System;
+using System.Collections.Generic;
 
-namespace Assets.Tcs.RaceTimer.Interfaces
+namespace Tcs.RaceTimer.Interfaces
 {
     public interface IRaceService
     {
-        Race CreateRace(Guid id, string name, DateTime eventDate, int stages);
-        Race CreateRace(Race race);
-        Player CreatePlayer(Guid id, string name, string no);
-        Team CreateTeam(Guid id, string name);
-        TeamPlayer AddTeamPlayer(Guid raceId, Guid teamId, Guid playerId);
-        PlayerTime AddPlayerTime(Guid raceId, Guid playerId, TimeType type, LogTime time);
+        Race CreateRace(string name, long eventDate, int stages);
+        Race CreateRace(string id, string name, long eventDate, int stages);
+        Player CreatePlayer(string id, string name, string no);
+        Team CreateTeam(string id, string name);
+        TeamPlayer AddTeamPlayer(string raceId, string teamId, string playerId);
+        PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time);
     }
 }

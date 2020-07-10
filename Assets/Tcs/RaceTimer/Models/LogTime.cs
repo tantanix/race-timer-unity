@@ -1,10 +1,13 @@
-﻿namespace Assets.Tcs.RaceTimer.Models
+﻿using System;
+
+namespace Tcs.RaceTimer.Models
 {
+    [Serializable]
     public struct LogTime
     {
-        public int Hours { get; set; }
-        public int Minutes { get; set; }
-        public int Seconds { get; set; }
-        public int Milliseconds { get; set; }
+        public int Hours;
+        public int Minutes;
+        public int Seconds;
+        public int Milliseconds;
     }
 }
