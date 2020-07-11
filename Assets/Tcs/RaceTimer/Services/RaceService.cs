@@ -51,16 +51,16 @@ namespace Tcs.RaceTimer.Services
             throw new NotImplementedException();
         }
 
-        public Race CreateRace(string name, long eventDate, int stages)
+        public Race CreateRace(string name, long eventDate, int stages, string location)
         {
-            var newRace = _raceRepository.CreateRace(name, eventDate, stages);
+            var newRace = _raceRepository.CreateRace(name, eventDate, stages, location);
             _newRace.Next(newRace);
             return newRace;
         }
 
-        public Race CreateRace(string id, string name, long eventDate, int stages)
+        public Race CreateRace(string id, string name, long eventDate, int stages, string location)
         {
-            var newRace = _raceRepository.CreateRace(id, name, eventDate, stages);
+            var newRace = _raceRepository.CreateRace(id, name, eventDate, stages, location);
             _newRace.Next(newRace);
             return newRace;
         }

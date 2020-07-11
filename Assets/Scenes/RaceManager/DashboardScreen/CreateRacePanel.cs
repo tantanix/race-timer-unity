@@ -52,7 +52,7 @@ public class CreateRacePanel : AppBase
 
         try
         {
-            var race = RaceTimerServices.GetInstance().RaceService.CreateRace(RaceNameInput.text, eventDate.Ticks, numberOfStages);
+            var race = RaceTimerServices.GetInstance().RaceService.CreateRace(RaceNameInput.text, eventDate.Ticks, numberOfStages, LocationInput.text);
             if (race != null)
                 IsDone = true;
             else

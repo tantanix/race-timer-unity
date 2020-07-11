@@ -11,13 +11,13 @@ namespace Tcs.RaceTimer.Repository
     {
         public const string RaceListIds = "raceListIds";
 
-        public Race CreateRace(string name, long eventDate, int stages)
+        public Race CreateRace(string name, long eventDate, int stages, string location)
         {
             var id = Guid.NewGuid().ToString();
-            return CreateRace(id, name, eventDate, stages);
+            return CreateRace(id, name, eventDate, stages, location);
         }
 
-        public Race CreateRace(string id, string name, long eventDate, int stages)
+        public Race CreateRace(string id, string name, long eventDate, int stages, string location)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Race id cannot be null or empty or whitespace");
@@ -30,7 +30,8 @@ namespace Tcs.RaceTimer.Repository
                 Id = id,
                 Name = name,
                 EventDate = eventDate,
-                Stages = stages
+                Stages = stages,
+                Location = location
             };
 
             var json = JsonUtility.ToJson(race, true);

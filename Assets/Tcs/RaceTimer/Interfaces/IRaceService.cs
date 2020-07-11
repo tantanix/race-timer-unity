@@ -9,8 +9,8 @@ namespace Tcs.RaceTimer.Interfaces
         Race CurrentRace { get; }
         IObservable<Race> OnNewRace { get; }
 
-        Race CreateRace(string name, long eventDate, int stages);
-        Race CreateRace(string id, string name, long eventDate, int stages);
+        Race CreateRace(string name, long eventDate, int stages, string location);
+        Race CreateRace(string id, string name, long eventDate, int stages, string location);
         IEnumerable<Race> GetAllRaces();
         Player CreatePlayer(string id, string name, string no);
         Team CreateTeam(string id, string name);

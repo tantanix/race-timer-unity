@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Tcs.RaceTimer.Models;
 using UnityEngine;
 
 public class RaceManagerSceneController : MonoBehaviour
@@ -14,6 +15,7 @@ public class RaceManagerSceneController : MonoBehaviour
     }
 
     public ScreenState? CurrenState = null;
+    private Race _currentRace;
 
     public void ChangeState(ScreenState state)
     {
@@ -52,12 +54,16 @@ public class RaceManagerSceneController : MonoBehaviour
 
     IEnumerator LoadRaceState()
     {
+        var race = RaceTimerServices.GetInstance()?.RaceService.CurrentRace;
+        if (race == _currentRace)
+            yield break;
+
         DashboardScreen.MainPanel.ShowAllPanels(false);
 
         DashboardScreen.MainPanel.RaceDashboardPanel.Show(true);
+        DashboardScreen.MainPanel.RaceDashboardPanel.RaceDetailsPanel.SetRaceDetails(race);
 
-        var currentRace = RaceTimerServices.GetInstance()?.RaceService.CurrentRace;
-        DashboardScreen.MainPanel.RaceDashboardPanel.LoadRace(currentRace);
+        _currentRace = race;
         yield break;
     }
 }

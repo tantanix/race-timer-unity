@@ -9,5 +9,6 @@ namespace Tcs.RaceTimer.Models
         public string Name;
         public long EventDate;
         public int Stages;
+        public string Location;
     }
 }
