@@ -29,7 +29,7 @@ public class RaceButton : MonoBehaviour
         if (Race == null)
             throw new UnityException("No race data mapped to this button");
 
-        RaceTimerServices.GetInstance().LoadRace(Race);
+        RaceTimerServices.GetInstance().RaceService.LoadRace(Race.Id);
 
         var controller = FindObjectOfType<RaceManagerSceneController>();
         controller.ChangeState(RaceManagerSceneController.ScreenState.LoadRace);

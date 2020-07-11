@@ -79,7 +79,7 @@ namespace Tcs.RaceTimer.Repository
             return race;
         }
 
-        public IReadOnlyList<Race> GetAll()
+        public IEnumerable<Race> GetAll()
         {
             if (PlayerPrefs.HasKey(RaceListIds))
             {
@@ -88,7 +88,7 @@ namespace Tcs.RaceTimer.Repository
                     return new List<Race>();
 
                 var arrList = raceListIds.Split(',');
-                return arrList.Select(GetRace).ToList().AsReadOnly();
+                return arrList.Select(GetRace);
             }
 
             return new List<Race>();

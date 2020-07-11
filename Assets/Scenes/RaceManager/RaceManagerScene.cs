@@ -3,12 +3,16 @@ using UnityEngine.SceneManagement;
 
 public class RaceManagerScene : MonoBehaviour
 {
-    void Awake()
+    void Start()
     {
         if (RaceTimerServices.GetInstance() == null)
+        {
             SceneManager.LoadScene("MainScene");
+            return;
+        }
+            
 
         var controller = FindObjectOfType<RaceManagerSceneController>();
-        controller.ChangeState(RaceManagerSceneController.ScreenState.Dashboard);
+        controller.ChangeState(RaceManagerSceneController.ScreenState.Initialize);
     }
 }

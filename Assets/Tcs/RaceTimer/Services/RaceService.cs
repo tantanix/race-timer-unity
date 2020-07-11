@@ -2,18 +2,23 @@
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.Repository;
 using System;
+using Tcs.Observables;
 using System.Collections.Generic;
 
 namespace Tcs.RaceTimer.Services
 {
-    public class RaceService : IRaceService, IObservable<Race>
+    public class RaceService : IRaceService
     {
         private readonly RaceRepository _raceRepository;
         private readonly PlayerRepository _playerRepository;
         private readonly TeamRepository _teamRepository;
 
-        private readonly List<IObserver<Race>> _observers;
+        private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
+        
+        public Race CurrentRace { get; private set; }
 
+        public IObservable<Race> OnNewRace { get; private set; }
+        
         public RaceService(
             RaceRepository raceRepository,
             PlayerRepository playerRepository,
@@ -23,7 +28,12 @@ namespace Tcs.RaceTimer.Services
             _playerRepository = playerRepository;
             _teamRepository = teamRepository;
 
-            _observers = new List<IObserver<Race>>();
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            OnNewRace = _newRace.AsObservable();
         }
 
         public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time)
@@ -44,23 +54,20 @@ namespace Tcs.RaceTimer.Services
         public Race CreateRace(string name, long eventDate, int stages)
         {
             var newRace = _raceRepository.CreateRace(name, eventDate, stages);
-            foreach (var observer in _observers)
-            {
-                observer.OnNext(newRace);
-            }
-
+            _newRace.Next(newRace);
             return newRace;
         }
 
         public Race CreateRace(string id, string name, long eventDate, int stages)
         {
             var newRace = _raceRepository.CreateRace(id, name, eventDate, stages);
-            foreach (var observer in _observers)
-            {
-                observer.OnNext(newRace);
-            }
-
+            _newRace.Next(newRace);
             return newRace;
+        }
+
+        public IEnumerable<Race> GetAllRaces()
+        {
+            return _raceRepository.GetAll();
         }
 
         public Team CreateTeam(string id, string name)
@@ -68,17 +75,10 @@ namespace Tcs.RaceTimer.Services
             return _teamRepository.CreateTeam(id, name);
         }
 
-        public IDisposable Subscribe(IObserver<Race> observer)
+        public void LoadRace(string raceId)
         {
-            if (!_observers.Contains(observer))
-            {
-                _observers.Add(observer);
-                
-                foreach (var item in _raceRepository.GetAll())
-                    observer.OnNext(item);
-            }
+            CurrentRace = _raceRepository.GetRace(raceId);
 
-            return new Subscription<Race>(_observers, observer);
         }
     }
 }

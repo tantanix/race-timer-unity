@@ -1,5 +1,4 @@
-﻿using Tcs.RaceTimer.Services;
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using Tcs.RaceTimer.Models;
@@ -9,12 +8,18 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
     public RaceManagerSceneController Controller;
     public RectTransform ButtonContainer;
     
-    private RaceService _raceService;
-
     void Start()
     {
-        _raceService = FindObjectOfType<RaceTimerServices>().RaceService;
-        _raceService.Subscribe(this);
+        RaceTimerServices.GetInstance()?.RaceService.OnNewRace.Subscribe(this);
+    }
+
+    public void Initialize()
+    {
+        var races = RaceTimerServices.GetInstance()?.RaceService.GetAllRaces();
+        foreach (var race in races)
+        {
+            CreateRaceButton(race);
+        }
     }
 
     public void OnCreateRace()
@@ -34,6 +39,9 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
 
     public void OnNext(Race value)
     {
+        if (value == null)
+            return;
+
         CreateRaceButton(value);
     }
 

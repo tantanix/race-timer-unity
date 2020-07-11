@@ -1,5 +1,4 @@
-﻿using Assets.Scenes;
-using System;
+﻿using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;

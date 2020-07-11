@@ -1,10 +1,8 @@
 ﻿using Tcs.RaceTimer.Repository;
 using Tcs.RaceTimer.Services;
-using System;
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Networking;
 using Tcs.RaceTimer.Models;
+using Tcs.RaceTimer.Interfaces;
 
 public class RaceTimerServices : MonoBehaviour
 {
@@ -15,7 +13,7 @@ public class RaceTimerServices : MonoBehaviour
         return _instance;
     }
 
-    public RaceService RaceService;
+    public IRaceService RaceService;
     
     private Race _currentRace;
 
@@ -41,10 +39,5 @@ public class RaceTimerServices : MonoBehaviour
     public void Initialize()
     {
         Debug.Log("RaceTimerServices is initialized");
-    }
-
-    public void LoadRace(Race race)
-    {
-        
     }
 }

@@ -7,6 +7,7 @@ public class RaceManagerSceneController : MonoBehaviour
 
     public enum ScreenState
     {
+        Initialize,
         Dashboard,
         CreateRace,
         LoadRace
@@ -14,17 +15,19 @@ public class RaceManagerSceneController : MonoBehaviour
 
     public ScreenState? CurrenState = null;
 
-    private RaceTimerServices _raceTimerServices;
-
-    void Awake()
-    {
-        _raceTimerServices = FindObjectOfType<RaceTimerServices>();
-    }
-
     public void ChangeState(ScreenState state)
     {
         CurrenState = state;
         StartCoroutine($"{CurrenState}State");
+    }
+
+    IEnumerator InitializeState()
+    {
+        Debug.Log("InitializeState");
+        DashboardScreen.NavPanel.Initialize();
+
+        ChangeState(ScreenState.Dashboard);
+        yield break;
     }
 
     IEnumerator DashboardState()
@@ -52,6 +55,9 @@ public class RaceManagerSceneController : MonoBehaviour
         DashboardScreen.MainPanel.ShowAllPanels(false);
 
         DashboardScreen.MainPanel.RaceDashboardPanel.Show(true);
+
+        var currentRace = RaceTimerServices.GetInstance()?.RaceService.CurrentRace;
+        DashboardScreen.MainPanel.RaceDashboardPanel.LoadRace(currentRace);
         yield break;
     }
 }
