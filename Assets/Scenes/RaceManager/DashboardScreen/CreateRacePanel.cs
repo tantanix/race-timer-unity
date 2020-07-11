@@ -1,7 +1,6 @@
 ﻿using Assets.Scenes;
 using System;
 using System.Globalization;
-using Tcs.RaceTimer.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +14,24 @@ public class CreateRacePanel : AppBase
     public TMP_InputField NumberOfStagesInput;
     public TMP_InputField EventDateInput;
     public TMP_InputField LocationInput;
+    public Button CreateRaceButton;
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (RaceNameInput.isFocused)
+                NumberOfStagesInput.Select();
+            else if (NumberOfStagesInput.isFocused)
+                EventDateInput.Select();
+            else if (EventDateInput.isFocused)
+                LocationInput.Select();
+            else if (LocationInput.isFocused)
+                CreateRaceButton.Select();
+            else
+                RaceNameInput.Select();
+        }
+    }
 
     public void OnCreateRace()
     {
