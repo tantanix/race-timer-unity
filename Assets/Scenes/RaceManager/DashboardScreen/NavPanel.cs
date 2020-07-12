@@ -5,9 +5,15 @@ using Tcs.RaceTimer.Models;
 
 public class NavPanel : MonoBehaviour, IObserver<Race>
 {
-    public RaceManagerSceneController Controller;
     public RectTransform ButtonContainer;
+
+    private RaceManagerSceneController _controller;
     
+    void Awake()
+    {
+        _controller = FindObjectOfType<RaceManagerSceneController>();
+    }
+
     void Start()
     {
         RaceTimerServices.GetInstance()?.RaceService.OnNewRace.Subscribe(this);
@@ -24,7 +30,7 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
 
     public void OnCreateRace()
     {
-        Controller.ChangeState(RaceManagerSceneController.ScreenState.CreateRace);
+        _controller.ChangeState(RaceManagerSceneController.ScreenState.CreateRace);
     }
 
     public void OnCompleted()

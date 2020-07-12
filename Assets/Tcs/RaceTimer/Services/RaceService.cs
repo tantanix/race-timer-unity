@@ -4,6 +4,7 @@ using Tcs.RaceTimer.Repository;
 using System;
 using Tcs.Observables;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tcs.RaceTimer.Services
 {
@@ -15,10 +16,12 @@ namespace Tcs.RaceTimer.Services
         private readonly RacePlayerRepository _racePlayerRepository;
 
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
+        private readonly BehaviorSubject<RacePlayerInfo> _newRacePlayer = new BehaviorSubject<RacePlayerInfo>(null);
         
         public Race CurrentRace { get; private set; }
 
         public IObservable<Race> OnNewRace { get; private set; }
+        public IObservable<RacePlayerInfo> OnNewRacePlayer { get; private set; }
         
         public RaceService(
             RaceRepository raceRepository,
@@ -37,6 +40,7 @@ namespace Tcs.RaceTimer.Services
         private void Initialize()
         {
             OnNewRace = _newRace.AsObservable();
+            OnNewRacePlayer = _newRacePlayer.AsObservable();
         }
 
         public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time)
@@ -80,7 +84,7 @@ namespace Tcs.RaceTimer.Services
 
         }
 
-        public RacePlayer CreatePlayer(string raceId, string name, int age, string email, string teamName)
+        public RacePlayerInfo CreatePlayer(string raceId, string name, int age, string email, string teamName)
         {
             var player = _playerRepository.FindByName(name);
             if (player == null)
@@ -104,12 +108,30 @@ namespace Tcs.RaceTimer.Services
                 _racePlayerRepository.Create(racePlayerId, raceId, team.Id, player.Id);
             }
 
-            return racePlayer;
+            return new RacePlayerInfo
+            {
+                Id = racePlayer.Id,
+                Race = CurrentRace,
+                Team = team,
+                Player = player
+            };
         }
 
         public Player CreatePlayer(string id, string name, int age, string email, string teamName, int no)
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<RacePlayerInfo> GetAllRacePlayers(string raceId)
+        {
+            var racePlayers = _racePlayerRepository.GetAll(raceId);
+            return racePlayers.Select(rp => new RacePlayerInfo
+                {
+                    Id = rp.Id,
+                    Race = _raceRepository.Get(rp.RaceId),
+                    Team = _teamRepository.Get(rp.TeamId),
+                    Player = _playerRepository.Get(rp.PlayerId)
+                });
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿public class RaceDashboardPanel : AppBase
 {
     public RaceDetailsPanel RaceDetailsPanel;
+    public RacePlayersPanel RacePlayersPanel;
 
     public override void Show(bool flag = true)
     {

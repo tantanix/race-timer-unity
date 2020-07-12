@@ -11,7 +11,8 @@ public class RaceManagerSceneController : MonoBehaviour
         Initialize,
         Dashboard,
         CreateRace,
-        LoadRace
+        LoadRace,
+        CreatePlayer
     }
 
     public ScreenState? CurrenState = null;
@@ -62,8 +63,14 @@ public class RaceManagerSceneController : MonoBehaviour
 
         DashboardScreen.MainPanel.RaceDashboardPanel.Show(true);
         DashboardScreen.MainPanel.RaceDashboardPanel.RaceDetailsPanel.SetRaceDetails(race);
+        DashboardScreen.MainPanel.RaceDashboardPanel.RacePlayersPanel.LoadPlayerList(race);
 
         _currentRace = race;
+        yield break;
+    }
+
+    IEnumerator CreatePlayerState()
+    {
         yield break;
     }
 }
