@@ -32,8 +32,9 @@ public class RaceTimerServices : MonoBehaviour
         var playerRepo = new PlayerRepository();
         var raceRepo = new RaceRepository();
         var teamRepo = new TeamRepository();
+        var racePlayerRepo = new RacePlayerRepository();
 
-        RaceService = new RaceService(raceRepo, playerRepo, teamRepo);
+        RaceService = new RaceService(raceRepo, playerRepo, teamRepo, racePlayerRepo);
     }
 
     public void Initialize()

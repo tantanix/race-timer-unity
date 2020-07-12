@@ -11,13 +11,7 @@ namespace Tcs.RaceTimer.Repository
     {
         public const string RaceListIds = "raceListIds";
 
-        public Race CreateRace(string name, long eventDate, int stages, string location)
-        {
-            var id = Guid.NewGuid().ToString();
-            return CreateRace(id, name, eventDate, stages, location);
-        }
-
-        public Race CreateRace(string id, string name, long eventDate, int stages, string location)
+        public Race Create(string id, string name, long eventDate, int stages, string location)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Race id cannot be null or empty or whitespace");
@@ -43,7 +37,7 @@ namespace Tcs.RaceTimer.Repository
             return race;
         }
 
-        public void DeleteRace(string id)
+        public void Delete(string id)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Race id cannot be null or empty or whitespace");
@@ -54,11 +48,11 @@ namespace Tcs.RaceTimer.Repository
 
             RemoveFromList(id);
 
-            Debug.Log("DeleteRace(" + id + ")");
+            Debug.Log("Delet Race(" + id + ")");
             PlayerPrefs.DeleteKey(id);
         }
 
-        public Race GetRace(string id)
+        public Race Get(string id)
         {
             if (id == null)
                 throw new RaceNotFoundException();
@@ -67,15 +61,8 @@ namespace Tcs.RaceTimer.Repository
             if (string.IsNullOrEmpty(data))
                 throw new RaceNotFoundException();
 
-            Debug.Log("GetMovieData(" + id + "): " + data);
+            Debug.Log("Get Race(" + id + "): " + data);
             var race = JsonUtility.FromJson<Race>(data);
-
-            // Remove race if it was faulty saved
-            if (string.IsNullOrEmpty(race.Id))
-            {
-                DeleteRace(id);
-                return null;
-            }
 
             return race;
         }
@@ -88,8 +75,8 @@ namespace Tcs.RaceTimer.Repository
                 if (string.IsNullOrEmpty(raceListIds))
                     return new List<Race>();
 
-                var arrList = raceListIds.Split(',');
-                return arrList.Select(GetRace);
+                var raceList = JsonUtility.FromJson<RaceList>(raceListIds);
+                return raceList.Ids.Select(Get);
             }
 
             return new List<Race>();
@@ -100,43 +87,48 @@ namespace Tcs.RaceTimer.Repository
             if (string.IsNullOrEmpty(raceId))
                 return;
 
+            RaceList raceList;
+
             string raceListIds = PlayerPrefs.GetString(RaceListIds, null);
-            var exists = raceListIds.IndexOf(raceId, StringComparison.InvariantCultureIgnoreCase) != -1;
+            if (!string.IsNullOrEmpty(raceListIds))
+                raceList = JsonUtility.FromJson<RaceList>(raceListIds);
+            else
+                raceList = new RaceList();
+
+            var exists = raceList.Ids.Contains(raceId);
             Debug.Log("Adding race data to the list: " + raceId + " - Exists: " + exists);
 
             if (exists)
                 return;
 
-            if (!string.IsNullOrEmpty(raceListIds))
-                raceListIds += ",";
+            raceList.Ids.Add(raceId);
+            var json = JsonUtility.ToJson(raceList);
+            Debug.Log("Race list new: " + json);
 
-            raceListIds += raceId;
-
-            PlayerPrefs.SetString(RaceListIds, raceListIds);
+            PlayerPrefs.SetString(RaceListIds, json);
         }
 
-        public void RemoveFromList(string raceId)
+        private void RemoveFromList(string raceId)
         {
             if (string.IsNullOrEmpty(raceId))
                 return;
 
             string raceListIds = PlayerPrefs.GetString(RaceListIds, null);
-            Debug.Log("Before Remove: " + raceListIds);
-            var list = raceListIds.Split(',');
-            string newList = "";
-            foreach (var id in list)
-            {
-                // Exclude the raceId
-                if (id != raceId)
-                {
-                    if (!string.IsNullOrEmpty(newList))
-                        newList += ",";
+            if (raceListIds == null)
+                return;
 
-                    newList += id;
-                }
-            }
-            Debug.Log("After Remove: " + newList);
-            PlayerPrefs.SetString(RaceListIds, newList);
+            var raceList = JsonUtility.FromJson<RaceList>(raceListIds);
+            Debug.Log("Before Remove: " + raceListIds);
+
+            if (!raceList.Ids.Contains(raceId))
+                return;
+
+            raceList.Ids.Remove(raceId);
+
+            var json = JsonUtility.ToJson(raceList);
+            Debug.Log("After Remove: " + raceList);
+
+            PlayerPrefs.SetString(RaceListIds, json);
         }
     }
 }

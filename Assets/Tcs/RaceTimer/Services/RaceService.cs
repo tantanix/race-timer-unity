@@ -12,6 +12,7 @@ namespace Tcs.RaceTimer.Services
         private readonly RaceRepository _raceRepository;
         private readonly PlayerRepository _playerRepository;
         private readonly TeamRepository _teamRepository;
+        private readonly RacePlayerRepository _racePlayerRepository;
 
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
         
@@ -22,11 +23,13 @@ namespace Tcs.RaceTimer.Services
         public RaceService(
             RaceRepository raceRepository,
             PlayerRepository playerRepository,
-            TeamRepository teamRepository)
+            TeamRepository teamRepository,
+            RacePlayerRepository racePlayerRepository)
         {
             _raceRepository = raceRepository;
             _playerRepository = playerRepository;
             _teamRepository = teamRepository;
+            _racePlayerRepository = racePlayerRepository;
 
             Initialize();
         }
@@ -41,26 +44,22 @@ namespace Tcs.RaceTimer.Services
             throw new NotImplementedException();
         }
 
-        public TeamPlayer AddTeamPlayer(string raceId, string teamId, string playerId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Player CreatePlayer(string id, string name, string no)
+        public RacePlayer AddTeamPlayer(string raceId, string teamId, string playerId)
         {
             throw new NotImplementedException();
         }
 
         public Race CreateRace(string name, long eventDate, int stages, string location)
         {
-            var newRace = _raceRepository.CreateRace(name, eventDate, stages, location);
+            var id = Guid.NewGuid().ToString();
+            var newRace = _raceRepository.Create(id, name, eventDate, stages, location);
             _newRace.Next(newRace);
             return newRace;
         }
 
         public Race CreateRace(string id, string name, long eventDate, int stages, string location)
         {
-            var newRace = _raceRepository.CreateRace(id, name, eventDate, stages, location);
+            var newRace = _raceRepository.Create(id, name, eventDate, stages, location);
             _newRace.Next(newRace);
             return newRace;
         }
@@ -72,13 +71,45 @@ namespace Tcs.RaceTimer.Services
 
         public Team CreateTeam(string id, string name)
         {
-            return _teamRepository.CreateTeam(id, name);
+            return _teamRepository.Create(id, name);
         }
 
         public void LoadRace(string raceId)
         {
-            CurrentRace = _raceRepository.GetRace(raceId);
+            CurrentRace = _raceRepository.Get(raceId);
 
+        }
+
+        public RacePlayer CreatePlayer(string raceId, string name, int age, string email, string teamName)
+        {
+            var player = _playerRepository.FindByName(name);
+            if (player == null)
+            {
+                var playerId = Guid.NewGuid().ToString();
+                var no = _playerRepository.GetLastPlayerNo() + 1;
+                player = _playerRepository.Create(playerId, name, age, email, no);
+            }
+
+            var team = _teamRepository.FindByName(teamName);
+            if (team == null)
+            {
+                var teamId = Guid.NewGuid().ToString();
+                team = _teamRepository.Create(teamId, teamName);
+            }
+
+            var racePlayer = _racePlayerRepository.Find(raceId, team.Id, player.Id);
+            if (racePlayer == null)
+            {
+                var racePlayerId = Guid.NewGuid().ToString();
+                _racePlayerRepository.Create(racePlayerId, raceId, team.Id, player.Id);
+            }
+
+            return racePlayer;
+        }
+
+        public Player CreatePlayer(string id, string name, int age, string email, string teamName, int no)
+        {
+            throw new NotImplementedException();
         }
     }
 }

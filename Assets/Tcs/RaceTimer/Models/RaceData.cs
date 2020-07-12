@@ -9,7 +9,7 @@ namespace Tcs.RaceTimer.Models
         public Race Race;
         public List<Player> Players;
         public List<Team> Teams;
-        public List<TeamPlayer> TeamPlayers;
+        public List<RacePlayer> TeamPlayers;
         public List<PlayerTime> PlayerTimes;
     }
 }
