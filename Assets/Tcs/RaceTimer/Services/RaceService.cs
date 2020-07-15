@@ -2,9 +2,9 @@
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.Repository;
 using System;
-using Tcs.Observables;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx;
 
 namespace Tcs.RaceTimer.Services
 {
@@ -17,12 +17,12 @@ namespace Tcs.RaceTimer.Services
 
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<RacePlayerInfo> _newRacePlayer = new BehaviorSubject<RacePlayerInfo>(null);
-        
+
         public Race CurrentRace { get; private set; }
 
         public IObservable<Race> OnNewRace { get; private set; }
         public IObservable<RacePlayerInfo> OnNewRacePlayer { get; private set; }
-        
+
         public RaceService(
             RaceRepository raceRepository,
             PlayerRepository playerRepository,
@@ -57,14 +57,14 @@ namespace Tcs.RaceTimer.Services
         {
             var id = Guid.NewGuid().ToString();
             var newRace = _raceRepository.Create(id, name, eventDate, stages, location);
-            _newRace.Next(newRace);
+            _newRace.OnNext(newRace);
             return newRace;
         }
 
         public Race CreateRace(string id, string name, long eventDate, int stages, string location)
         {
             var newRace = _raceRepository.Create(id, name, eventDate, stages, location);
-            _newRace.Next(newRace);
+            _newRace.OnNext(newRace);
             return newRace;
         }
 
@@ -105,7 +105,7 @@ namespace Tcs.RaceTimer.Services
             if (racePlayer == null)
             {
                 var racePlayerId = Guid.NewGuid().ToString();
-                _racePlayerRepository.Create(racePlayerId, raceId, team.Id, player.Id);
+                racePlayer = _racePlayerRepository.Create(racePlayerId, raceId, team.Id, player.Id);
             }
 
             return new RacePlayerInfo

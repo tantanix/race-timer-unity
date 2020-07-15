@@ -4,7 +4,12 @@ using System.Collections.Generic;
 // From website: http://forum.unity3d.com/threads/76851-Simple-Reusable-Object-Pool-Help-limit-your-instantiations!
 public class ObjectPool : MonoBehaviour
 {
-	public static ObjectPool Instance;
+	private static ObjectPool _instance;
+
+	public static ObjectPool GetInstance()
+	{
+		return _instance;
+	}
 
 	/// <summary>
 	/// The object prefabs which the pool can handle.
@@ -31,12 +36,12 @@ public class ObjectPool : MonoBehaviour
 
 	void Awake()
 	{
-		if (Instance == null)
+		if (_instance == null)
 		{
-			Instance = this;
+			_instance = this;
 			DontDestroyOnLoad(this);
 		}
-		else if (Instance != this)
+		else if (_instance != this)
 		{
 			Destroy(gameObject);
 		}

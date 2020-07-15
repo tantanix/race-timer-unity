@@ -36,7 +36,7 @@ public class RacePlayersPanel : MonoBehaviour, IObserver<RacePlayerInfo>
     }
     private void CreateRacePlayer(RacePlayerInfo racePlayer)
     {
-        var go = ObjectPool.Instance.GetObjectForType("RacePlayerEntry", false);
+        var go = ObjectPool.GetInstance().GetObjectForType("RacePlayerEntry", false);
         go.GetComponent<RacePlayerEntry>().SetInfo(racePlayer);
 
         go.transform.SetParent(RacePlayerContainer, false);

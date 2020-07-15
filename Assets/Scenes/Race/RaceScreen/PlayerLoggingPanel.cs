@@ -21,7 +21,7 @@ public class PlayerLoggingPanel : MonoBehaviour
 
     private GameObject CreateEntry()
     {
-        var go = ObjectPool.Instance.GetObjectForType("PlayerLogEntry", false);
+        var go = ObjectPool.GetInstance().GetObjectForType("PlayerLogEntry", false);
         go.transform.localScale = Vector3.one;
 
         var component = go.GetComponent<PlayerLogEntry>();

@@ -46,5 +46,7 @@ MonoBehaviour:
   ObjectPrefabs:
   - {fileID: 410445373586436184, guid: 61a46ad16ca05554da94c63afc4fe7d2, type: 3}
   - {fileID: 3509379167155471850, guid: 41fa7b49763dad54aa5580d4a6e8172e, type: 3}
-  AmountToBuffer: 030000000a000000
+  - {fileID: 4751028251854024219, guid: d119c9f9b12626c48a9e3801a2e197f3, type: 3}
+  - {fileID: 2771437392058377977, guid: f910573b9434f9d409b0fe548813efc3, type: 3}
+  AmountToBuffer: 030000000a0000006400000001000000
   DefaultBufferAmount: 3

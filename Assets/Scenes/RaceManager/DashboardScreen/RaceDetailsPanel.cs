@@ -12,7 +12,7 @@ public class RaceDetailsPanel : MonoBehaviour
 
     public void SetRaceDetails(Race race)
     {
-        RaceNameText.text = $"{race.Name} - {race.Stages} Stages";
+        RaceNameText.text = $"{race.Name} - {race.Stages} Stages".ToUpperInvariant();
 
         var date = new DateTime(race.EventDate);
         EventDateText.text = $"{date:dddd, dd MMMM yyyy h:mm tt}";

@@ -71,6 +71,15 @@ public class RaceManagerSceneController : MonoBehaviour
 
     IEnumerator CreatePlayerState()
     {
+        var go = ObjectPool.GetInstance().GetObjectForType("CreatePlayerDialog", true);
+        if (go)
+        {
+            DialogService.GetInstance().Show(go);
+
+            var dialog = go.GetComponent<CreatePlayerDialog>();
+            
+        }
+
         yield break;
     }
 }

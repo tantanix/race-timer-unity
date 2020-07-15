@@ -584,27 +584,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: ObjectPool
       objectReference: {fileID: 0}
-    - target: {fileID: 3544138152368654171, guid: 9979193d400933247bf4cc4df507dac8,
-        type: 3}
-      propertyPath: ObjectPrefabs.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3544138152368654171, guid: 9979193d400933247bf4cc4df507dac8,
-        type: 3}
-      propertyPath: AmountToBuffer.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3544138152368654171, guid: 9979193d400933247bf4cc4df507dac8,
-        type: 3}
-      propertyPath: ObjectPrefabs.Array.data[2]
-      value: 
-      objectReference: {fileID: 4751028251854024219, guid: d119c9f9b12626c48a9e3801a2e197f3,
-        type: 3}
-    - target: {fileID: 3544138152368654171, guid: 9979193d400933247bf4cc4df507dac8,
-        type: 3}
-      propertyPath: AmountToBuffer.Array.data[2]
-      value: 100
-      objectReference: {fileID: 0}
     - target: {fileID: 3544138152368654172, guid: 9979193d400933247bf4cc4df507dac8,
         type: 3}
       propertyPath: m_LocalPosition.x

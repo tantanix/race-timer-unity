@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine;
 using Tcs.RaceTimer.Models;
+using UniRx;
 
 public class NavPanel : MonoBehaviour, IObserver<Race>
 {
@@ -16,7 +17,10 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
 
     void Start()
     {
-        RaceTimerServices.GetInstance()?.RaceService.OnNewRace.Subscribe(this);
+        RaceTimerServices.GetInstance()?.RaceService
+            .OnNewRace
+            .TakeUntilDestroy(this)
+            .Subscribe(this);
     }
 
     public void Initialize()
@@ -35,7 +39,7 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
 
     public void OnCompleted()
     {
-        throw new NotImplementedException();
+        Debug.Log("Completed");
     }
 
     public void OnError(Exception error)
@@ -59,7 +63,7 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
         if (string.IsNullOrEmpty(race.Name))
             return;
 
-        var go = ObjectPool.Instance.GetObjectForType("RaceButton", false);
+        var go = ObjectPool.GetInstance().GetObjectForType("RaceButton", false);
         go.GetComponentInChildren<TMP_Text>().text = race.Name.Substring(0, 1).ToUpperInvariant();
         go.transform.localScale = Vector3.one;
         go.transform.SetParent(ButtonContainer, false);
