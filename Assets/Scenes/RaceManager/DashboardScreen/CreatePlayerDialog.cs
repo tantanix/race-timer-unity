@@ -1,4 +1,4 @@
-﻿using Assets.Tcs.Unity;
+﻿using Tcs.Unity;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -6,7 +6,16 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreatePlayerDialog : AppBase
+public class CreatePlayerForm
+{
+    public string RaceId { get; set; }
+    public string Name { get; set; }
+    public string TeamName { get; set; }
+    public int Age { get; set; }
+    public string Email { get; set; }
+}
+
+public class CreatePlayerDialog : MonoBehaviour
 {
     public Color32 ValidBgColor = AppColors.FormFieldValid;
     public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
@@ -17,6 +26,7 @@ public class CreatePlayerDialog : AppBase
     public TMP_InputField EmailInput;
     public TMP_Dropdown CategoryDropdown;
     public Button CreatePlayerButton;
+    public Button CloseButton;
 
     private bool isCategoryDropdownFocused = false;
 
@@ -26,6 +36,11 @@ public class CreatePlayerDialog : AppBase
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => OnCreatePlayer());
+
+        CloseButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => OnClose());
 
         // TODO: Make this list dynamic
         var categories = new List<string>
@@ -67,23 +82,12 @@ public class CreatePlayerDialog : AppBase
         }
     }
 
-    public override void Show(bool flag = true)
-    {
-        if (flag)
-        {
-            IsDone = false;
-        }
-
-        gameObject.SetActive(flag);
-        IsShown = flag;
-    }
-
     private void OnCreatePlayer()
     {
         var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var age = 0;
 
-        var isRaceValid = race != null && string.IsNullOrEmpty(race.Id);
+        var isRaceValid = race != null && !string.IsNullOrEmpty(race.Id);
         var isNameValid = PlayerNameInput.text.Length > 0;
         var isTeamNameValid = TeamNameInput.text.Length > 0;
         var isAgeValid = AgeInput.text.Length > 0 && int.TryParse(AgeInput.text, out age);
@@ -97,25 +101,22 @@ public class CreatePlayerDialog : AppBase
         if (!isRaceValid || !isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
             return;
 
-        try
-        {
-            var playerInfo = RaceTimerServices.GetInstance().RaceService.CreatePlayer(
-                                race.Id,
-                                PlayerNameInput.text,
-                                age,
-                                EmailInput.text,
-                                TeamNameInput.text);
+        DialogService.GetInstance().Close(
+            gameObject,
+            true,
+            new CreatePlayerForm
+            {
+                RaceId = race.Id,
+                Name = PlayerNameInput.text,
+                TeamName = TeamNameInput.text,
+                Age = age,
+                Email = EmailInput.text
+            });
+    }
 
-            if (playerInfo != null)
-                IsDone = true;
-            else
-                throw new Exception("Failed to create race");
-        }
-        catch (Exception ex)
-        {
-            throw new UnityException(ex.Message);
-        }
-
+    private void OnClose()
+    {
+        DialogService.GetInstance().Close(gameObject, true);
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Tcs.Unity;
+using System.Collections;
 using Tcs.RaceTimer.Models;
 using UnityEngine;
 
@@ -71,14 +72,25 @@ public class RaceManagerSceneController : MonoBehaviour
 
     IEnumerator CreatePlayerState()
     {
-        var go = ObjectPool.GetInstance().GetObjectForType("CreatePlayerDialog", true);
-        if (go)
-        {
-            DialogService.GetInstance().Show(go);
+        //var go = ObjectPool.GetInstance().GetObjectForType("CreatePlayerDialog", true);
+        //if (go)
+        //{
+        //    var dialogRef = DialogService.GetInstance().Show(go);
 
-            var dialog = go.GetComponent<CreatePlayerDialog>();
+        //    if (dialogRef.IsOpen)
+        //    {
+        //        yield return null;
+        //    }
+
+        //    dialogRef.AfterClosed().Subscribe(_ =>
+        //    {
+
+        //    });
+
             
-        }
+            
+            
+        //}
 
         yield break;
     }

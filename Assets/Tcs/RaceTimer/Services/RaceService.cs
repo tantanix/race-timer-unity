@@ -15,12 +15,14 @@ namespace Tcs.RaceTimer.Services
         private readonly TeamRepository _teamRepository;
         private readonly RacePlayerRepository _racePlayerRepository;
 
+        private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<RacePlayerInfo> _newRacePlayer = new BehaviorSubject<RacePlayerInfo>(null);
 
         public Race CurrentRace { get; private set; }
 
         public IObservable<Race> OnNewRace { get; private set; }
+        public IObservable<Player> OnNewPlayer { get; private set; }
         public IObservable<RacePlayerInfo> OnNewRacePlayer { get; private set; }
 
         public RaceService(
@@ -40,6 +42,7 @@ namespace Tcs.RaceTimer.Services
         private void Initialize()
         {
             OnNewRace = _newRace.AsObservable();
+            OnNewPlayer = _newPlayer.AsObservable();
             OnNewRacePlayer = _newRacePlayer.AsObservable();
         }
 
@@ -92,6 +95,8 @@ namespace Tcs.RaceTimer.Services
                 var playerId = Guid.NewGuid().ToString();
                 var no = _playerRepository.GetLastPlayerNo() + 1;
                 player = _playerRepository.Create(playerId, name, age, email, no);
+
+                _newPlayer.OnNext(player);
             }
 
             var team = _teamRepository.FindByName(teamName);
@@ -108,13 +113,17 @@ namespace Tcs.RaceTimer.Services
                 racePlayer = _racePlayerRepository.Create(racePlayerId, raceId, team.Id, player.Id);
             }
 
-            return new RacePlayerInfo
+            var racePlayerInfo = new RacePlayerInfo
             {
                 Id = racePlayer.Id,
                 Race = CurrentRace,
                 Team = team,
                 Player = player
             };
+
+            _newRacePlayer.OnNext(racePlayerInfo);
+
+            return racePlayerInfo;
         }
 
         public Player CreatePlayer(string id, string name, int age, string email, string teamName, int no)
@@ -132,6 +141,11 @@ namespace Tcs.RaceTimer.Services
                     Team = _teamRepository.Get(rp.TeamId),
                     Player = _playerRepository.Get(rp.PlayerId)
                 });
+        }
+
+        public IEnumerable<Player> GetAllPlayers()
+        {
+            return _playerRepository.GetAll();
         }
     }
 }

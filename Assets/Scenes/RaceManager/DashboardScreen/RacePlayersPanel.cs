@@ -1,23 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tcs.RaceTimer.Models;
+using UniRx;
 using UnityEngine;
 
-public class RacePlayersPanel : MonoBehaviour, IObserver<RacePlayerInfo>
+public class RacePlayersPanel : MonoBehaviour, IObserver<Player>
 {
     public RectTransform RacePlayerContainer;
+    
+    private List<GameObject> _playerInstances = new List<GameObject>();
 
     void Start()
     {
-        RaceTimerServices.GetInstance()?.RaceService.OnNewRacePlayer.Subscribe(this);
+        RaceTimerServices.GetInstance()?
+            .RaceService
+            .OnNewPlayer
+            .TakeUntilDestroy(this)
+            .Subscribe(CreateRacePlayer);
     }
 
     public void LoadPlayerList(Race race)
     {
-        var racePlayers = RaceTimerServices.GetInstance().RaceService.GetAllRacePlayers(race.Id);
-        foreach (var racePlayer in racePlayers)
+        ClearList();
+
+        var players = RaceTimerServices.GetInstance().RaceService.GetAllPlayers();
+        foreach (var player in players)
         {
-            CreateRacePlayer(racePlayer);
+            CreateRacePlayer(player);
         }
+    }
+
+    private void ClearList()
+    {
+        foreach (var instance in _playerInstances)
+        {
+            instance.transform.SetParent(null);
+            ObjectPool.GetInstance().PoolObject(instance);
+        }
+
+        _playerInstances.Clear();
     }
 
     public void OnCompleted()
@@ -30,17 +51,23 @@ public class RacePlayersPanel : MonoBehaviour, IObserver<RacePlayerInfo>
         throw new NotImplementedException();
     }
 
-    public void OnNext(RacePlayerInfo value)
+    public void OnNext(Player value)
     {
-        throw new NotImplementedException();
+        CreateRacePlayer(value);
     }
-    private void CreateRacePlayer(RacePlayerInfo racePlayer)
+
+    private void CreateRacePlayer(Player player)
     {
+        if (player == null)
+            return;
+
         var go = ObjectPool.GetInstance().GetObjectForType("RacePlayerEntry", false);
-        go.GetComponent<RacePlayerEntry>().SetInfo(racePlayer);
+        go.GetComponent<RacePlayerEntry>().SetInfo(player);
 
         go.transform.SetParent(RacePlayerContainer, false);
         go.transform.localScale = Vector3.one;
+
+        _playerInstances.Add(go);
     }
 
 }

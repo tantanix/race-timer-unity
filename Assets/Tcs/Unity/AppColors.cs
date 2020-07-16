@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Tcs.Unity
+namespace Tcs.Unity
 {
     public class AppColors
     {

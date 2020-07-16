@@ -1,5 +1,4 @@
-﻿using System;
-using Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,9 +13,9 @@ public class RacePlayerEntry : MonoBehaviour, IPointerEnterHandler, IPointerExit
         HoverBg.SetActive(false);
     }
 
-    public void SetInfo(RacePlayerInfo racePlayer)
+    public void SetInfo(Player player)
     {
-        NameText.text = racePlayer.Player.Name;
+        NameText.text = player.Name;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
