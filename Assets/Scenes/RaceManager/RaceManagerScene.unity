@@ -368,7 +368,7 @@ GameObject:
   - component: {fileID: 114514103}
   - component: {fileID: 114514106}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1261,7 +1261,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 95.84, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &318099911
@@ -3602,7 +3602,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 335.68, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &796119482
@@ -5182,7 +5182,7 @@ GameObject:
   - component: {fileID: 1140664996}
   - component: {fileID: 1140664999}
   m_Layer: 5
-  m_Name: Button
+  m_Name: AddCategoryButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5251,7 +5251,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1140664997}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1422073135}
+        m_MethodName: OnCreateCategory
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1140664997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6360,6 +6371,7 @@ GameObject:
   - component: {fileID: 1422073133}
   - component: {fileID: 1422073132}
   - component: {fileID: 1422073134}
+  - component: {fileID: 1422073135}
   m_Layer: 5
   m_Name: CategoryTabsPanel
   m_TagString: Untagged
@@ -6450,6 +6462,19 @@ MonoBehaviour:
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
+--- !u!114 &1422073135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422073130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ac77587a9a64254688599ecb6cbc8a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CategoryButtonContainer: {fileID: 114514102}
 --- !u!1 &1460600616
 GameObject:
   m_ObjectHideFlags: 0

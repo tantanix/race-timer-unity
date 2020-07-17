@@ -163,12 +163,13 @@ namespace Tcs.RaceTimer.Services
 
         public IEnumerable<Category> GetAllCategories()
         {
-            throw new NotImplementedException();
+            return _categoryRepository.GetAll();
         }
 
         public IEnumerable<Category> GetAllRaceCategories(string raceId)
         {
-            throw new NotImplementedException();
+            var race = _racePlayerRepository.Get(raceId);
+            return null;
         }
 
         public IEnumerable<CategoryPlayer> GetAllRaceCategoryPlayers(string raceId, string categoryId)
