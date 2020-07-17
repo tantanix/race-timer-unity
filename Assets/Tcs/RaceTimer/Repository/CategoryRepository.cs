@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tcs.Core.Entity;
 using Tcs.RaceTimer.Exceptions;
 using Tcs.RaceTimer.Models;
 using UnityEngine;
