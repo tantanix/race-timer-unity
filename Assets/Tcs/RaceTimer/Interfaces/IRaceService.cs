@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Tcs.RaceTimer.Models;
+using Tcs.RaceTimer.ViewModels;
 
 namespace Tcs.RaceTimer.Interfaces
 {
@@ -20,7 +21,15 @@ namespace Tcs.RaceTimer.Interfaces
         void LoadRace(string raceId);
         RacePlayer AddTeamPlayer(string raceId, string teamId, string playerId);
         PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time);
+        
+        Category CreateCategory(string name);
+        Category CreateCategory(string id, string name);
+
         IEnumerable<RacePlayerInfo> GetAllRacePlayers(string raceId);
         IEnumerable<Player> GetAllPlayers();
+        IEnumerable<Category> GetAllCategories();
+        IEnumerable<Category> GetAllRaceCategories(string raceId);
+        IEnumerable<CategoryPlayer> GetAllRaceCategoryPlayers(string raceId, string categoryId);
+
     }
 }

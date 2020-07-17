@@ -1,4 +1,6 @@
-﻿namespace Tcs.RaceTimer.Models
+﻿using Tcs.RaceTimer.Models;
+
+namespace Tcs.RaceTimer.ViewModels
 {
     public class RacePlayerInfo
     {

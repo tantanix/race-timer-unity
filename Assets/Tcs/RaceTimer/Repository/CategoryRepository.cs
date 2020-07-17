@@ -41,9 +41,9 @@ namespace Tcs.RaceTimer.Repository
 
             CategoryList categoryList;
 
-            string playerListIds = PlayerPrefs.GetString(CategoryListIds, null);
-            if (!string.IsNullOrEmpty(playerListIds))
-                categoryList = JsonUtility.FromJson<CategoryList>(playerListIds);
+            string categoryListIds = PlayerPrefs.GetString(CategoryListIds, null);
+            if (!string.IsNullOrEmpty(categoryListIds))
+                categoryList = JsonUtility.FromJson<CategoryList>(categoryListIds);
             else
                 categoryList = new CategoryList();
 

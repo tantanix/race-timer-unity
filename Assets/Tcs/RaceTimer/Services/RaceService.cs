@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
+using Tcs.RaceTimer.ViewModels;
 
 namespace Tcs.RaceTimer.Services
 {
@@ -148,6 +149,31 @@ namespace Tcs.RaceTimer.Services
         public IEnumerable<Player> GetAllPlayers()
         {
             return _playerRepository.GetAll();
+        }
+
+        public Category CreateCategory(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Category CreateCategory(string id, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Category> GetAllCategories()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Category> GetAllRaceCategories(string raceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<CategoryPlayer> GetAllRaceCategoryPlayers(string raceId, string categoryId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
