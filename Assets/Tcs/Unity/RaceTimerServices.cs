@@ -1,7 +1,6 @@
 ﻿using Tcs.RaceTimer.Repository;
 using Tcs.RaceTimer.Services;
 using UnityEngine;
-using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.Interfaces;
 
 public class RaceTimerServices : MonoBehaviour
@@ -15,8 +14,6 @@ public class RaceTimerServices : MonoBehaviour
 
     public IRaceService RaceService;
     
-    private Race _currentRace;
-
     void Awake()
     {
         if (_instance == null)
@@ -32,9 +29,10 @@ public class RaceTimerServices : MonoBehaviour
         var playerRepo = new PlayerRepository();
         var raceRepo = new RaceRepository();
         var teamRepo = new TeamRepository();
+        var categoryRepo = new CategoryRepository();
         var racePlayerRepo = new RacePlayerRepository();
 
-        RaceService = new RaceService(raceRepo, playerRepo, teamRepo, racePlayerRepo);
+        RaceService = new RaceService(raceRepo, playerRepo, teamRepo, categoryRepo, racePlayerRepo);
     }
 
     public void Initialize()

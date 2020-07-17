@@ -13,6 +13,7 @@ namespace Tcs.RaceTimer.Services
         private readonly RaceRepository _raceRepository;
         private readonly PlayerRepository _playerRepository;
         private readonly TeamRepository _teamRepository;
+        private readonly CategoryRepository _categoryRepository;
         private readonly RacePlayerRepository _racePlayerRepository;
 
         private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
@@ -29,11 +30,13 @@ namespace Tcs.RaceTimer.Services
             RaceRepository raceRepository,
             PlayerRepository playerRepository,
             TeamRepository teamRepository,
+            CategoryRepository categoryRepository,
             RacePlayerRepository racePlayerRepository)
         {
             _raceRepository = raceRepository;
             _playerRepository = playerRepository;
             _teamRepository = teamRepository;
+            _categoryRepository = categoryRepository;
             _racePlayerRepository = racePlayerRepository;
 
             Initialize();
@@ -93,8 +96,7 @@ namespace Tcs.RaceTimer.Services
             if (player == null)
             {
                 var playerId = Guid.NewGuid().ToString();
-                var no = _playerRepository.GetLastPlayerNo() + 1;
-                player = _playerRepository.Create(playerId, name, age, email, no);
+                player = _playerRepository.Create(playerId, name, age, email);
 
                 _newPlayer.OnNext(player);
             }

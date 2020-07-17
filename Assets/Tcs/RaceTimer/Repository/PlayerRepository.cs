@@ -10,19 +10,8 @@ namespace Tcs.RaceTimer.Repository
     public class PlayerRepository
     {
         public const string PlayerListIds = "playerListIds";
-        public const string PlayerLastNo = "playerLastNo";
-
-        public int GetLastPlayerNo()
-        {
-            return PlayerPrefs.GetInt(PlayerLastNo, 0);
-        }
-
-        private void UpdateLastPlayerNo(int no)
-        {
-            PlayerPrefs.SetInt(PlayerLastNo, no);
-        }
-
-        public Player Create(string id, string name, int age, string email, int no)
+        
+        public Player Create(string id, string name, int age, string email)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
                 throw new ArgumentException("Race id cannot be null or empty or whitespace.");
@@ -36,16 +25,12 @@ namespace Tcs.RaceTimer.Repository
             if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("Email cannot be null or empty or whitespace.");
 
-            if (no <= 0)
-                throw new ArgumentException("Player number cannot be zero or less.");
-
             var player = new Player
             {
                 Id = id,
                 Name = name,
                 Age = age,
-                Email = email,
-                No = no
+                Email = email
             };
 
             var json = JsonUtility.ToJson(player, true);
@@ -53,7 +38,6 @@ namespace Tcs.RaceTimer.Repository
             PlayerPrefs.SetString(player.Id, json);
 
             AddToList(player.Id);
-            UpdateLastPlayerNo(player.No);
 
             return player;
         }
@@ -94,9 +78,9 @@ namespace Tcs.RaceTimer.Repository
                 throw new PlayerNotFoundException();
 
             Debug.Log("Get Player(" + id + "): " + data);
-            var team = JsonUtility.FromJson<Player>(data);
+            var player = JsonUtility.FromJson<Player>(data);
 
-            return team;
+            return player;
         }
 
         public IEnumerable<Player> GetAll()

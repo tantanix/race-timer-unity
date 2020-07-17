@@ -26,7 +26,10 @@ public class DialogService : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
+    void Start()
+    {
         Overlay.SetActive(false);
     }
 

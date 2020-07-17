@@ -9,5 +9,7 @@ namespace Tcs.RaceTimer.Models
         public string RaceId;
         public string TeamId;
         public string PlayerId;
+        public int No;
+        public long StartTime;
     }
 }

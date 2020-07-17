@@ -7,9 +7,8 @@ namespace Tcs.RaceTimer.Models
     public class RaceData
     {
         public Race Race;
-        public List<Player> Players;
-        public List<Team> Teams;
-        public List<RacePlayer> TeamPlayers;
+        public List<Category> Categories;
+        public List<RacePlayer> RacePlayers;
         public List<PlayerTime> PlayerTimes;
     }
 }
