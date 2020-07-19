@@ -10,6 +10,11 @@ public class RaceDetailsPanel : MonoBehaviour
     public TMP_Text EventDateText;
     public TMP_Text LocationText;
 
+    void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+
     public void SetRaceDetails(Race race)
     {
         RaceNameText.text = $"{race.Name} - {race.Stages} Stages".ToUpperInvariant();

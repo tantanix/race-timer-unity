@@ -1,61 +1,34 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using Tcs.RaceTimer.Models;
 using UniRx;
+using UnityEngine.UI;
 
-public class NavPanel : MonoBehaviour, IObserver<Race>
+public class NavPanel : MonoBehaviour
 {
+    public Button CreateRaceButton;
     public RectTransform ButtonContainer;
-
-    private RaceManagerSceneController _controller;
-    
-    void Awake()
-    {
-        _controller = FindObjectOfType<RaceManagerSceneController>();
-    }
 
     void Start()
     {
+        CreateRaceButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => OpenCreateRaceDialog());
+
         RaceTimerServices.GetInstance()?.RaceService
             .OnNewRace
             .TakeUntilDestroy(this)
-            .Subscribe(this);
-    }
+            .Subscribe(AddRaceButton);
 
-    public void Initialize()
-    {
         var races = RaceTimerServices.GetInstance()?.RaceService.GetAllRaces();
         foreach (var race in races)
         {
-            CreateRaceButton(race);
+            AddRaceButton(race);
         }
     }
 
-    public void OnCreateRace()
-    {
-        _controller.ChangeState(RaceManagerSceneController.ScreenState.CreateRace);
-    }
-
-    public void OnCompleted()
-    {
-        Debug.Log("Completed");
-    }
-
-    public void OnError(Exception error)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnNext(Race value)
-    {
-        if (value == null)
-            return;
-
-        CreateRaceButton(value);
-    }
-
-    private void CreateRaceButton(Race race)
+    private void AddRaceButton(Race race)
     {
         if (race == null)
             return;
@@ -70,5 +43,11 @@ public class NavPanel : MonoBehaviour, IObserver<Race>
         go.transform.SetSiblingIndex(1);
 
         go.GetComponent<RaceButton>().Race = race;
+    }
+
+    private void OpenCreateRaceDialog()
+    {
+        var go = ObjectPool.GetInstance().GetObjectForType("CreateRaceDialog", true);
+        DialogService.GetInstance().Show(go);
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using Tcs.Core.Entity;
 
 namespace Tcs.RaceTimer.Models
 {
     [Serializable]
-    public class RacePlayerList
-    {
-        public List<string> Ids = new List<string>();
-    }
+    public class RacePlayerList : EntityList { }
 }

@@ -29,7 +29,7 @@ public class RaceDetailsButtonPanel : MonoBehaviour
 
         try
         {
-            var playerInfo = RaceTimerServices.GetInstance().RaceService.CreatePlayer(
+            var playerInfo = RaceTimerServices.GetInstance().RaceService.CreateRacePlayer(
                 form.RaceId,
                 form.Name,
                 form.Age,

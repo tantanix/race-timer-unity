@@ -20,6 +20,11 @@ public class AddCategoryDialog : MonoBehaviour
 
     private List<string> _categories;
 
+    void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+
     void Start()
     {
         CreateButton
@@ -35,16 +40,18 @@ public class AddCategoryDialog : MonoBehaviour
         PlayerNameInput.gameObject.SetActive(false);
 
         var raceService = RaceTimerServices.GetInstance().RaceService;
+        Debug.Log(raceService);
         var race = raceService.CurrentRace;
+        Debug.Log(race);
         var allCategories = raceService.GetAllCategories();
         var raceCategories = raceService.GetAllRaceCategories(race.Id);
-
+        Debug.Log(raceCategories);
         var unassignedCategories = allCategories.Except(raceCategories);
-
+        Debug.Log(unassignedCategories);
         _categories = unassignedCategories.Select(x => x.Name).ToList();
-        _categories.Add(CreateNewCategoryOption);
-
         CategoryDropdown.AddOptions(_categories);
+        
+        _categories.Add(CreateNewCategoryOption);
     }
 
     private void OnCreateCategory()
@@ -54,7 +61,6 @@ public class AddCategoryDialog : MonoBehaviour
 
     private void OnSelectCategory(int index)
     {
-        Debug.Log(index);
         if (_categories == null)
             return;
 

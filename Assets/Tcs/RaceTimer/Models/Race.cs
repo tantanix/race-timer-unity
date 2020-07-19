@@ -1,11 +1,11 @@
 ﻿using System;
+using Tcs.Core.Entity;
 
 namespace Tcs.RaceTimer.Models
 {
     [Serializable]
-    public class Race
+    public class Race : Entity
     {
-        public string Id;
         public string Name;
         public long EventDate;
         public int Stages;

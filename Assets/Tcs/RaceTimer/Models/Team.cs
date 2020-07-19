@@ -1,11 +1,11 @@
 ﻿using System;
+using Tcs.Core.Entity;
 
 namespace Tcs.RaceTimer.Models
 {
     [Serializable]
-    public class Team
+    public class Team : Entity
     {
-        public string Id;
         public string Name;
     }
 }

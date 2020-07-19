@@ -82,5 +82,41 @@ namespace Tcs.Core.Entity
             
             PlayerPrefs.SetString(key, json);
         }
+
+        public void Delete(string id)
+        {
+            var data = PlayerPrefs.GetString(id, null);
+            if (string.IsNullOrEmpty(data))
+                throw new EntityNotFoundException<TEntity>();
+
+            RemoveFromList(id);
+
+            Debug.Log($"{GetListKey(id)} Deleted (" + id + ")");
+            PlayerPrefs.DeleteKey(id);
+        }
+
+        private void RemoveFromList(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return;
+
+            var key = GetListKey(id);
+            string listIds = PlayerPrefs.GetString(key, null);
+            if (listIds == null)
+                return;
+
+            var list = JsonUtility.FromJson<TEntityList>(listIds);
+            Debug.Log($"{GetListKey(id)} Before Remove: " + listIds);
+
+            if (!list.Ids.Contains(id))
+                return;
+
+            list.Ids.Remove(id);
+
+            var json = JsonUtility.ToJson(list);
+            Debug.Log($"{GetListKey(id)} After Remove: " + list);
+
+            PlayerPrefs.SetString(id, json);
+        }
     }
 }

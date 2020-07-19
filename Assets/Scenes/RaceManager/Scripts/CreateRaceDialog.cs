@@ -1,19 +1,33 @@
 ﻿using System;
 using System.Globalization;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateRacePanel : AppBase
+public class CreateRaceDialog : MonoBehaviour
 {
     public Color32 ValidBgColor;
     public Color32 RequiredBgColor;
-    public RaceManagerSceneController Controller;
     public TMP_InputField RaceNameInput;
     public TMP_InputField NumberOfStagesInput;
     public TMP_InputField EventDateInput;
     public TMP_InputField LocationInput;
     public Button CreateRaceButton;
+    public Button CloseButton;
+
+    void Start()
+    {
+        CreateRaceButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => OnCreateRace());
+
+        CloseButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => OnClose());
+    }
 
     void Update()
     {
@@ -54,7 +68,7 @@ public class CreateRacePanel : AppBase
         {
             var race = RaceTimerServices.GetInstance().RaceService.CreateRace(RaceNameInput.text, eventDate.Ticks, numberOfStages, LocationInput.text);
             if (race != null)
-                IsDone = true;
+                DialogService.GetInstance().Close(gameObject, true);
             else
                 throw new Exception("Failed to create race");
         } 
@@ -64,15 +78,9 @@ public class CreateRacePanel : AppBase
         }
     }
 
-    public override void Show(bool flag = true)
+    private void OnClose()
     {
-        if (flag)
-        {
-            IsDone = false;
-        }
-
-        gameObject.SetActive(flag);
-        IsShown = flag;
+        DialogService.GetInstance().Close(gameObject, true);
     }
 
 }

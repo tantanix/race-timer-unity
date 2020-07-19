@@ -1,8 +1,9 @@
-﻿namespace Tcs.RaceTimer.Models
+﻿using Tcs.Core.Entity;
+
+namespace Tcs.RaceTimer.Models
 {
-    public class Category
+    public class Category : Entity
     {
-        public string Id;
         public string Name;
     }
 }

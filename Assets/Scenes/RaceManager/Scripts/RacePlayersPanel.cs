@@ -12,7 +12,13 @@ public class RacePlayersPanel : MonoBehaviour, IObserver<Player>
 
     void Start()
     {
-        RaceTimerServices.GetInstance()?
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRaceLoaded
+            .TakeUntilDestroy(this)
+            .Subscribe(LoadPlayerList);
+
+        RaceTimerServices.GetInstance()
             .RaceService
             .OnNewPlayer
             .TakeUntilDestroy(this)
