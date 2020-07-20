@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using Tcs.RaceTimer.Models;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +15,22 @@ public class RaceDetailsPanel : MonoBehaviour
     void Awake()
     {
         gameObject.SetActive(false);
+
+        if (RaceTimerServices.GetInstance() == null)
+            return;
+
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRaceLoaded()
+            .TakeUntilDestroy(this)
+            .Subscribe(race =>
+            {
+                if (race == null)
+                    return;
+
+                gameObject.SetActive(true);
+                SetRaceDetails(race);
+            });
     }
 
     public void SetRaceDetails(Race race)
@@ -23,7 +41,6 @@ public class RaceDetailsPanel : MonoBehaviour
         EventDateText.text = $"{date:dddd, dd MMMM yyyy h:mm tt}";
 
         LocationText.text = $"{race.Location}";
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
     }
+
 }

@@ -1,18 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Tcs.RaceTimer.Models;
 using UnityEngine;
 
 public class CategoryTabButton : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public Category Category;
 }

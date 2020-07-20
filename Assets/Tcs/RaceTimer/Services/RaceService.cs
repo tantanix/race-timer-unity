@@ -1,16 +1,14 @@
-﻿using Tcs.RaceTimer.Interfaces;
-using Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using Tcs.RaceTimer.ViewModels;
-using UnityEngine;
 
 namespace Tcs.RaceTimer.Services
 {
-    public class RaceService : IRaceService
+    public class RaceService
     {
         private readonly RaceRepository _raceRepository;
         private readonly PlayerRepository _playerRepository;
@@ -20,16 +18,18 @@ namespace Tcs.RaceTimer.Services
         private readonly RacePlayerRepository _racePlayerRepository;
 
         private readonly BehaviorSubject<Race> _currentRace = new BehaviorSubject<Race>(null);
-        private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
+        private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
+        private readonly BehaviorSubject<Category> _newRaceCategory = new BehaviorSubject<Category>(null);
         private readonly BehaviorSubject<RacePlayerInfo> _newRacePlayer = new BehaviorSubject<RacePlayerInfo>(null);
 
         public Race CurrentRace { get; private set; }
 
-        public IObservable<Race> OnRaceLoaded { get; private set; }
-        public IObservable<Race> OnNewRace { get; private set; }
-        public IObservable<Player> OnNewPlayer { get; private set; }
-        public IObservable<RacePlayerInfo> OnNewRacePlayer { get; private set; }
+        public IObservable<Race> OnRaceLoaded() => _currentRace.AsObservable();
+        public IObservable<Race> OnNewRace() => _newRace.AsObservable();
+        public IObservable<Player> OnNewPlayer() => _newPlayer.AsObservable();
+        public IObservable<RacePlayerInfo> OnNewRacePlayer() => _newRacePlayer.AsObservable();
+        public IObservable<Category> OnNewRaceCategory() => _newRaceCategory.AsObservable();
 
         public RaceService(
             RaceRepository raceRepository,
@@ -45,16 +45,6 @@ namespace Tcs.RaceTimer.Services
             _categoryRepository = categoryRepository;
             _raceCategoryRepository = raceCategoryRepository;
             _racePlayerRepository = racePlayerRepository;
-
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            OnRaceLoaded = _currentRace.AsObservable();
-            OnNewRace = _newRace.AsObservable();
-            OnNewPlayer = _newPlayer.AsObservable();
-            OnNewRacePlayer = _newRacePlayer.AsObservable();
         }
 
         public PlayerTime AddPlayerTime(string raceId, string playerId, TimeType type, LogTime time)
@@ -251,7 +241,14 @@ namespace Tcs.RaceTimer.Services
 
         public Category CreateCategory(string name)
         {
-            throw new NotImplementedException();
+            var categoryId = Guid.NewGuid().ToString();
+            var category = _categoryRepository.Create(new Category
+            {
+                Id = categoryId,
+                Name = name
+            });
+
+            return category;
         }
 
         public Category CreateCategory(string id, string name)
@@ -267,7 +264,7 @@ namespace Tcs.RaceTimer.Services
         public IEnumerable<Category> GetAllRaceCategories(string raceId)
         {
             var raceCategories = _raceCategoryRepository.GetAll(raceId);
-            return raceCategories.Select(x => _categoryRepository.Get(x.Id));
+            return raceCategories.Select(x => _categoryRepository.Get(x.CategoryId));
         }
 
         public IEnumerable<CategoryPlayer> GetAllRaceCategoryPlayers(string raceId, string categoryId)
@@ -275,5 +272,29 @@ namespace Tcs.RaceTimer.Services
             throw new NotImplementedException();
         }
 
+        public RaceCategory AddRaceCategory(string raceId, string categoryName)
+        {
+            if (string.IsNullOrEmpty(raceId) || string.IsNullOrEmpty(categoryName))
+                return null;
+
+            var race = _raceRepository.Get(raceId);
+            var category = _categoryRepository.FindByName(categoryName);
+            if (category == null)
+            {
+                category = CreateCategory(categoryName);
+            }
+
+            var newId = Guid.NewGuid().ToString();
+            var raceCategory = _raceCategoryRepository.Create(race.Id, new RaceCategory
+            {
+                Id = newId,
+                CategoryId = category.Id,
+                RaceId = race.Id
+            });
+
+            _newRaceCategory.OnNext(category);
+
+            return raceCategory;
+        }
     }
 }

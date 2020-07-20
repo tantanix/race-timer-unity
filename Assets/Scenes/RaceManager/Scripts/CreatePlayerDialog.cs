@@ -4,6 +4,7 @@ using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class CreatePlayerForm
 {
@@ -34,12 +35,12 @@ public class CreatePlayerDialog : MonoBehaviour
         CreatePlayerButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(_ => OnCreatePlayer());
+            .Subscribe(_ => CreatePlayer());
 
         CloseButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(_ => OnClose());
+            .Subscribe(_ => Close());
 
         // TODO: Make this list dynamic
         var categories = new List<string>
@@ -81,7 +82,7 @@ public class CreatePlayerDialog : MonoBehaviour
         }
     }
 
-    private void OnCreatePlayer()
+    private void CreatePlayer()
     {
         var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var age = 0;
@@ -100,20 +101,27 @@ public class CreatePlayerDialog : MonoBehaviour
         if (!isRaceValid || !isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
             return;
 
-        DialogService.GetInstance().Close(
-            gameObject,
-            true,
-            new CreatePlayerForm
-            {
-                RaceId = race.Id,
-                Name = PlayerNameInput.text,
-                TeamName = TeamNameInput.text,
-                Age = age,
-                Email = EmailInput.text
-            });
+        try
+        {
+            var playerInfo = RaceTimerServices.GetInstance().RaceService.CreateRacePlayer(
+                race.Id,
+                PlayerNameInput.text,
+                age,
+                EmailInput.text,
+                TeamNameInput.text);
+
+            if (playerInfo == null)
+                throw new Exception("Failed to create player");
+
+            Close();
+        }
+        catch (Exception ex)
+        {
+            throw new UnityException("Failed to create player", ex);
+        }
     }
 
-    private void OnClose()
+    private void Close()
     {
         DialogService.GetInstance().Close(gameObject, true);
     }

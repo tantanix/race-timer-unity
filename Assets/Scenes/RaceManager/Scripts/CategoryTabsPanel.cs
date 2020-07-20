@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using Tcs.RaceTimer.Models;
+using TMPro;
 using UniRx;
 using UnityEngine;
 
@@ -6,23 +9,70 @@ public class CategoryTabsPanel : MonoBehaviour
 {
     public Transform CategoryButtonContainer;
 
-    public void OnCreateCategory()
-    {
-        var go = ObjectPool.GetInstance().GetObjectForType("AddCategoryDialog", true);
-        var dialogRef = DialogService.GetInstance().Show(go);
+    private List<GameObject> _buttonInstances = new List<GameObject>();
 
-        dialogRef
-            .AfterClosed()
+    void Awake()
+    {
+        if (RaceTimerServices.GetInstance() == null)
+            return;
+
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRaceLoaded()
             .TakeUntilDestroy(this)
-            .Subscribe(data =>
+            .Subscribe(race =>
             {
-                if (data != null)
-                    OnCategoryCreated(data);
+                if (race == null)
+                    return;
+
+                gameObject.SetActive(true);
+                
+                ClearList();
+                LoadRaceCategories(race);
             });
+
+        RaceTimerServices.GetInstance().RaceService
+            .OnNewRaceCategory()
+            .TakeUntilDestroy(this)
+            .Subscribe(AddRaceCategoryButton);
     }
 
-    private void OnCategoryCreated(object data)
+    private void LoadRaceCategories(Race race)
     {
-        throw new NotImplementedException();
+        var categories = RaceTimerServices.GetInstance()?.RaceService.GetAllRaceCategories(race.Id);
+        foreach (var category in categories)
+        {
+            AddRaceCategoryButton(category);
+        }
+    }
+
+    private void AddRaceCategoryButton(Category category)
+    {
+        if (category == null)
+            return;
+
+        if (string.IsNullOrEmpty(category.Name))
+            return;
+
+        var go = ObjectPool.GetInstance().GetObjectForType("CategoryTabButton", false);
+        go.GetComponentInChildren<TMP_Text>().text = category.Name;
+        go.transform.localScale = Vector3.one;
+        go.transform.SetParent(CategoryButtonContainer, false);
+        //go.transform.SetSiblingIndex(1);
+
+        go.GetComponent<CategoryTabButton>().Category = category;
+
+        _buttonInstances.Add(go);
+    }
+
+    private void ClearList()
+    {
+        foreach (var instance in _buttonInstances)
+        {
+            instance.transform.SetParent(null);
+            ObjectPool.GetInstance().PoolObject(instance);
+        }
+
+        _buttonInstances.Clear();
     }
 }

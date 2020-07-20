@@ -199,8 +199,9 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 2552045674
   CategoryDropdown: {fileID: 3271023449816256642}
-  PlayerNameInput: {fileID: 2935872060254457491}
+  NameInput: {fileID: 2935872060254457491}
   CreateButton: {fileID: 2935872060169470275}
+  CloseButton: {fileID: 8292303994029442038}
 --- !u!1 &2935872058840140048
 GameObject:
   m_ObjectHideFlags: 0

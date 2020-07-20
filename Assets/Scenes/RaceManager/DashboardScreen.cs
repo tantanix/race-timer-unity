@@ -8,20 +8,20 @@ public class DashboardScreen : MonoBehaviour
 
     void Start()
     {
-        RaceTimerServices.GetInstance()
-            .RaceService
-            .OnRaceLoaded
-            .TakeUntilDestroy(this)
-            .Subscribe(race =>
-            {
-                if (race == null)
-                    return;
+        //RaceTimerServices.GetInstance()
+        //    .RaceService
+        //    .OnRaceLoaded
+        //    .TakeUntilDestroy(this)
+        //    .Subscribe(race =>
+        //    {
+        //        if (race == null)
+        //            return;
 
-                Debug.Log("Race loaded: " + race);
-                RaceDashboardPanel.gameObject.SetActive(true);
+        //        Debug.Log("Race loaded: " + race);
+        //        RaceDashboardPanel.gameObject.SetActive(true);
 
-                RaceDetailsPanel.gameObject.SetActive(true);
-                RaceDetailsPanel.SetRaceDetails(race);
-            });
+        //        RaceDetailsPanel.gameObject.SetActive(true);
+        //        RaceDetailsPanel.SetRaceDetails(race);
+        //    });
     }
 }

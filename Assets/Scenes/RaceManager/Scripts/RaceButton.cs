@@ -23,7 +23,6 @@ public class RaceButton : MonoBehaviour
             .TakeUntilDestroy(this)
             .Subscribe(_ =>
             {
-                Debug.Log("Race Button clicked: " + Race.Id);
                 RaceTimerServices.GetInstance().RaceService.LoadRace(Race.Id);
             });
     }

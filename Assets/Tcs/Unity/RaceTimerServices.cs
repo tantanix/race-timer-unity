@@ -1,7 +1,6 @@
 ﻿using Tcs.RaceTimer.Repository;
 using Tcs.RaceTimer.Services;
 using UnityEngine;
-using Tcs.RaceTimer.Interfaces;
 
 public class RaceTimerServices : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class RaceTimerServices : MonoBehaviour
         return _instance;
     }
 
-    public IRaceService RaceService;
+    public RaceService RaceService;
     
     void Awake()
     {

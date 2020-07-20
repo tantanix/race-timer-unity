@@ -17,7 +17,7 @@ public class NavPanel : MonoBehaviour
             .Subscribe(_ => OpenCreateRaceDialog());
 
         RaceTimerServices.GetInstance()?.RaceService
-            .OnNewRace
+            .OnNewRace()
             .TakeUntilDestroy(this)
             .Subscribe(AddRaceButton);
 

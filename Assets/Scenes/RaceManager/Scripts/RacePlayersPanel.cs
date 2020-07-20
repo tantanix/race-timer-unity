@@ -10,17 +10,20 @@ public class RacePlayersPanel : MonoBehaviour, IObserver<Player>
     
     private List<GameObject> _playerInstances = new List<GameObject>();
 
-    void Start()
+    void Awake()
     {
+        if (RaceTimerServices.GetInstance() == null)
+            return;
+
         RaceTimerServices.GetInstance()
             .RaceService
-            .OnRaceLoaded
+            .OnRaceLoaded()
             .TakeUntilDestroy(this)
             .Subscribe(LoadPlayerList);
 
         RaceTimerServices.GetInstance()
             .RaceService
-            .OnNewPlayer
+            .OnNewPlayer()
             .TakeUntilDestroy(this)
             .Subscribe(CreateRacePlayer);
     }
