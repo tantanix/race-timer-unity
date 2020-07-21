@@ -50,11 +50,11 @@ public class AddCategoryDialog : MonoBehaviour
         var raceCategories = raceService.GetAllRaceCategories(race.Id);
         var unassignedCategories = allCategories.Except(raceCategories).ToList();
 
-        _categories.Add(CreateNewCategoryOption);
         foreach (var uc in unassignedCategories.Select(x => x.Name))
         {
             _categories.Add(uc);
         }
+        _categories.Add(CreateNewCategoryOption);
 
         // If there are no categories yet, we default to create new category option.
         if (!allCategories.Any())
