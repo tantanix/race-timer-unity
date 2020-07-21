@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AddCategoryButton : MonoBehaviour
+public class AddRacePlayerButton : MonoBehaviour
 {
     private Button _button;
 
@@ -12,14 +12,15 @@ public class AddCategoryButton : MonoBehaviour
         _button
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(_ => ShowAddCategoryDialog());
+            .Subscribe(_ => ShowAddRacePlayerDialog());
     }
 
-    private void ShowAddCategoryDialog()
+    private void ShowAddRacePlayerDialog()
     {
-        var go = ObjectPool.GetInstance().GetObjectForType("AddCategoryDialog", true);
-        go.GetComponent<AddCategoryDialog>().Reset();
+        var go = ObjectPool.GetInstance().GetObjectForType("CreatePlayerDialog", true);
+        go.GetComponent<CreatePlayerDialog>().Reset();
 
         DialogService.GetInstance().Show(go);
     }
+    
 }

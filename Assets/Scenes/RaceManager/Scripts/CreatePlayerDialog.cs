@@ -5,6 +5,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
 public class CreatePlayerForm
 {
@@ -29,6 +30,7 @@ public class CreatePlayerDialog : MonoBehaviour
     public Button CloseButton;
 
     private bool isCategoryDropdownFocused = false;
+    private List<string> _categories;
 
     void Start()
     {
@@ -42,19 +44,29 @@ public class CreatePlayerDialog : MonoBehaviour
             .TakeUntilDestroy(this)
             .Subscribe(_ => Close());
 
-        // TODO: Make this list dynamic
-        var categories = new List<string>
-        {
-            "Open elite",
-            "40 and above",
-            "30-39",
-            "20-29",
-            "19 and below",
-            "Feminino",
-            "Wildcard",
-            "Curious"
-        };
-        CategoryDropdown.AddOptions(categories);
+        RaceTimerServices.GetInstance()?.RaceService
+            .OnNewRaceCategory()
+            .TakeUntilDestroy(this)
+            .Subscribe(category =>
+            {
+                if (category != null)
+                {
+                    _categories.Add(category.Name);
+                    UpdateCategoryList();
+                }
+            });
+
+        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
+        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories(race.Id);
+        _categories = raceCategories.Select(x => x.Name).ToList();
+
+        UpdateCategoryList();
+    }
+
+    private void UpdateCategoryList()
+    {
+        CategoryDropdown.ClearOptions();
+        CategoryDropdown.AddOptions(_categories);
     }
 
     void Update()
@@ -126,4 +138,11 @@ public class CreatePlayerDialog : MonoBehaviour
         DialogService.GetInstance().Close(gameObject, true);
     }
 
+    public void Reset()
+    {
+        PlayerNameInput.text = "";
+        TeamNameInput.text = "";
+        AgeInput.text = "";
+        EmailInput.text = "";
+    }
 }

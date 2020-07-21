@@ -24,14 +24,12 @@ public class AddCategoryDialog : MonoBehaviour
     public Button CreateButton;
     public Button CloseButton;
 
-    private List<string> _categories;
+    private List<string> _categories = new List<string>();
     private string _selectedCategory;
 
-    void Awake()
+    void Start()
     {
-        gameObject.SetActive(false);
-
-        CreateButton                    
+        CreateButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => CreateCategory());
@@ -45,30 +43,26 @@ public class AddCategoryDialog : MonoBehaviour
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => Close());
-    }
-
-    void Start()
-    {
-        _selectedCategory = "";
-        NameInput.text = "";
-        NameInput.gameObject.SetActive(false);
 
         var raceService = RaceTimerServices.GetInstance().RaceService;
         var race = raceService.CurrentRace;
         var allCategories = raceService.GetAllCategories();
         var raceCategories = raceService.GetAllRaceCategories(race.Id);
         var unassignedCategories = allCategories.Except(raceCategories).ToList();
-        _categories = unassignedCategories.Select(x => x.Name).ToList();
-        
+
+        _categories.Add(CreateNewCategoryOption);
+        foreach (var uc in unassignedCategories.Select(x => x.Name))
+        {
+            _categories.Add(uc);
+        }
+
         // If there are no categories yet, we default to create new category option.
-        if (!_categories.Any())
+        if (!allCategories.Any())
         {
             NameInput.gameObject.SetActive(true);
             _selectedCategory = CreateNewCategoryOption;
         }
         
-        _categories.Add(CreateNewCategoryOption);
-
         CategoryDropdown.AddOptions(_categories);
     }
 
@@ -106,7 +100,7 @@ public class AddCategoryDialog : MonoBehaviour
 
     private void SelectCategory(int index)
     {
-        if (_categories == null)
+        if (!_categories.Any())
             return;
 
         _selectedCategory = _categories[index];
@@ -123,5 +117,12 @@ public class AddCategoryDialog : MonoBehaviour
     private void Close()
     {
         DialogService.GetInstance().Close(gameObject, true);
+    }
+
+    public void Reset()
+    {
+        _selectedCategory = "";
+        NameInput.text = "";
+        NameInput.gameObject.SetActive(false);
     }
 }

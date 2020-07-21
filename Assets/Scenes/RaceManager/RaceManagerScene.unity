@@ -1498,7 +1498,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 16
   m_Viewport: {fileID: 1672353348}
   m_HorizontalScrollbar: {fileID: 1977361916}
   m_VerticalScrollbar: {fileID: 1038365875}
@@ -2182,7 +2182,6 @@ GameObject:
   - component: {fileID: 796119483}
   - component: {fileID: 796119482}
   - component: {fileID: 796119484}
-  - component: {fileID: 796119486}
   m_Layer: 5
   m_Name: RaceDetailsButtonPanel
   m_TagString: Untagged
@@ -2274,18 +2273,6 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
---- !u!114 &796119486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796119480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c9eef802398fd9438fb0778aa93da06, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &848749540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4397,6 +4384,7 @@ GameObject:
   - component: {fileID: 1787471556}
   - component: {fileID: 1787471555}
   - component: {fileID: 1787471554}
+  - component: {fileID: 1787471557}
   m_Layer: 5
   m_Name: AddPlayerButton
   m_TagString: Untagged
@@ -4467,18 +4455,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1787471555}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 796119486}
-        m_MethodName: OnCreatePlayer
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1787471555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4516,6 +4493,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1787471552}
   m_CullTransparentMesh: 0
+--- !u!114 &1787471557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787471552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6819d252725969d4db11c74d9a83be2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1831558176
 GameObject:
   m_ObjectHideFlags: 0
