@@ -14,6 +14,7 @@ public struct AddCategoryForm
 
 public class AddCategoryDialog : MonoBehaviour
 {
+    public const string SelectCategoryOption = "Select a category";
     public const string CreateNewCategoryOption = "Create new category";
 
     public Color32 ValidBgColor = AppColors.FormFieldValid;
@@ -44,26 +45,10 @@ public class AddCategoryDialog : MonoBehaviour
             .TakeUntilDestroy(this)
             .Subscribe(_ => Close());
 
-        var raceService = RaceTimerServices.GetInstance().RaceService;
-        var race = raceService.CurrentRace;
-        var allCategories = raceService.GetAllCategories();
-        var raceCategories = raceService.GetAllRaceCategories(race.Id);
-        var unassignedCategories = allCategories.Except(raceCategories).ToList();
-
-        foreach (var uc in unassignedCategories.Select(x => x.Name))
-        {
-            _categories.Add(uc);
-        }
-        _categories.Add(CreateNewCategoryOption);
-
-        // If there are no categories yet, we default to create new category option.
-        if (!allCategories.Any())
-        {
-            NameInput.gameObject.SetActive(true);
-            _selectedCategory = CreateNewCategoryOption;
-        }
-        
-        CategoryDropdown.AddOptions(_categories);
+        NameInput
+            .OnValueChangedAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(NameInputValueChanged);
     }
 
     private void CreateCategory()
@@ -86,7 +71,7 @@ public class AddCategoryDialog : MonoBehaviour
             var raceService = RaceTimerServices.GetInstance().RaceService;
             var race = raceService.CurrentRace;
             
-            var newCategory = raceService.AddRaceCategory(race.Id, NameInput.text);
+            var newCategory = raceService.AddRaceCategory(race.Race.Id, name);
             if (newCategory == null)
                 throw new Exception("Failed to create category");
 
@@ -98,6 +83,11 @@ public class AddCategoryDialog : MonoBehaviour
         }
     }
 
+    private void NameInputValueChanged(string value)
+    {
+        CreateButton.interactable = value.Length > 0;
+    }
+
     private void SelectCategory(int index)
     {
         if (!_categories.Any())
@@ -106,10 +96,20 @@ public class AddCategoryDialog : MonoBehaviour
         _selectedCategory = _categories[index];
         if (_selectedCategory == CreateNewCategoryOption)
         {
+            CreateButton.interactable = false;
             NameInput.gameObject.SetActive(true);
-        } 
+            _selectedCategory = CreateNewCategoryOption;
+        }
+        else if (_selectedCategory == SelectCategoryOption)
+        {
+            CreateButton.interactable = false;
+            NameInput.gameObject.SetActive(false);
+            NameInput.text = "";
+            _selectedCategory = SelectCategoryOption;
+        }
         else
         {
+            CreateButton.interactable = true;
             NameInput.gameObject.SetActive(false);
         }
     }
@@ -119,10 +119,32 @@ public class AddCategoryDialog : MonoBehaviour
         DialogService.GetInstance().Close(gameObject, true);
     }
 
-    public void Reset()
+    public void Initialize()
     {
         _selectedCategory = "";
         NameInput.text = "";
         NameInput.gameObject.SetActive(false);
+
+        var currentRace = RaceTimerServices.GetInstance().RaceService.CurrentRace;
+        var allCategories = RaceTimerServices.GetInstance().RaceService.GetAllCategories();
+        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories(currentRace.Race.Id).ToList();
+        
+        _categories.Clear();
+
+        _categories.Add(SelectCategoryOption);
+
+        foreach (var category in allCategories)
+        {
+            if (!raceCategories.Exists(x => x.Category.Id == category.Id))
+            {
+                _categories.Add(category.Name);
+            }
+        }
+        _categories.Add(CreateNewCategoryOption);
+
+        CategoryDropdown.ClearOptions();
+        CategoryDropdown.AddOptions(_categories);
+
+        CreateButton.interactable = false;
     }
 }

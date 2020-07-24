@@ -2,12 +2,15 @@
 
 namespace Tcs.RaceTimer.ViewModels
 {
-    public class RacePlayerInfo
+    [System.Serializable]
+    public class RacePlayerViewModel
     {
         public string Id;
         public Race Race;
         public Category Category;
         public Team Team;
         public Player Player;
+        public int No;
+        public long StartTime;
     }
 }

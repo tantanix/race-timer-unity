@@ -18,7 +18,7 @@ public class AddCategoryButton : MonoBehaviour
     private void ShowAddCategoryDialog()
     {
         var go = ObjectPool.GetInstance().GetObjectForType("AddCategoryDialog", true);
-        go.GetComponent<AddCategoryDialog>().Reset();
+        go.GetComponent<AddCategoryDialog>().Initialize();
 
         DialogService.GetInstance().Show(go);
     }

@@ -133,6 +133,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0546e3a3047067744a6618cbda7036d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RaceCategory:
+    Race:
+      Id: 
+      Name: 
+      EventDate: 0
+      Stages: 0
+      Location: 
+    Category:
+      Id: 
+      Name: 
 --- !u!1 &4572685361591573877
 GameObject:
   m_ObjectHideFlags: 0

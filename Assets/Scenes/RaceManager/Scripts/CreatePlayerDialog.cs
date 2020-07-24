@@ -47,18 +47,17 @@ public class CreatePlayerDialog : MonoBehaviour
         RaceTimerServices.GetInstance()?.RaceService
             .OnNewRaceCategory()
             .TakeUntilDestroy(this)
-            .Subscribe(category =>
+            .Subscribe(raceCategory =>
             {
-                if (category != null)
+                if (raceCategory != null)
                 {
-                    _categories.Add(category.Name);
+                    _categories.Add(raceCategory.Category.Name);
                     UpdateCategoryList();
                 }
             });
 
         var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
-        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories(race.Id);
-        _categories = raceCategories.Select(x => x.Name).ToList();
+        _categories = race.RaceCategories.Select(x => x.Category.Name).ToList();
 
         UpdateCategoryList();
     }
@@ -99,7 +98,7 @@ public class CreatePlayerDialog : MonoBehaviour
         var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var age = 0;
 
-        var isRaceValid = race != null && !string.IsNullOrEmpty(race.Id);
+        var isRaceValid = race != null && !string.IsNullOrEmpty(race.Race.Id);
         var isNameValid = PlayerNameInput.text.Length > 0;
         var isTeamNameValid = TeamNameInput.text.Length > 0;
         var isAgeValid = AgeInput.text.Length > 0 && int.TryParse(AgeInput.text, out age);
@@ -116,7 +115,7 @@ public class CreatePlayerDialog : MonoBehaviour
         try
         {
             var playerInfo = RaceTimerServices.GetInstance().RaceService.CreateRacePlayer(
-                race.Id,
+                race.Race.Id,
                 PlayerNameInput.text,
                 age,
                 EmailInput.text,

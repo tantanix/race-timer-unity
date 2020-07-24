@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Tcs.RaceTimer.Models;
+﻿using System.Collections.Generic;
+using Tcs.RaceTimer.ViewModels;
 using UniRx;
 using UnityEngine;
 
-public class RacePlayersPanel : MonoBehaviour, IObserver<Player>
+public class RacePlayersPanel : MonoBehaviour
 {
-    public RectTransform RacePlayerContainer;
-    
-    private List<GameObject> _playerInstances = new List<GameObject>();
+    public RectTransform RacePlayersContainer;
 
-    void Awake()
+    private List<GameObject> _racePlayerInstances = new List<GameObject>();
+
+    private void Awake()
     {
         if (RaceTimerServices.GetInstance() == null)
             return;
@@ -23,60 +22,43 @@ public class RacePlayersPanel : MonoBehaviour, IObserver<Player>
 
         RaceTimerServices.GetInstance()
             .RaceService
-            .OnNewPlayer()
+            .OnNewRacePlayer()
             .TakeUntilDestroy(this)
             .Subscribe(CreateRacePlayer);
     }
 
-    public void LoadPlayerList(Race race)
+    private void LoadPlayerList(RaceViewModel raceModel)
     {
         ClearList();
 
-        var players = RaceTimerServices.GetInstance().RaceService.GetAllPlayers();
-        foreach (var player in players)
+        foreach (var racePlayer in raceModel.RacePlayers)
         {
-            CreateRacePlayer(player);
+            CreateRacePlayer(racePlayer);
         }
     }
 
     private void ClearList()
     {
-        foreach (var instance in _playerInstances)
+        foreach (var instance in _racePlayerInstances)
         {
             instance.transform.SetParent(null);
             ObjectPool.GetInstance().PoolObject(instance);
         }
 
-        _playerInstances.Clear();
+        _racePlayerInstances.Clear();
     }
 
-    public void OnCompleted()
+    private void CreateRacePlayer(RacePlayerViewModel racePlayerInfo)
     {
-        throw new NotImplementedException();
-    }
-
-    public void OnError(Exception error)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnNext(Player value)
-    {
-        CreateRacePlayer(value);
-    }
-
-    private void CreateRacePlayer(Player player)
-    {
-        if (player == null)
+        if (racePlayerInfo == null)
             return;
 
         var go = ObjectPool.GetInstance().GetObjectForType("RacePlayerEntry", false);
-        go.GetComponent<RacePlayerEntry>().SetInfo(player);
+        go.GetComponent<RacePlayerEntry>().SetInfo(racePlayerInfo);
 
-        go.transform.SetParent(RacePlayerContainer, false);
+        go.transform.SetParent(RacePlayersContainer, false);
         go.transform.localScale = Vector3.one;
 
-        _playerInstances.Add(go);
+        _racePlayerInstances.Add(go);
     }
-
 }

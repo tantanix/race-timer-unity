@@ -1,7 +1,7 @@
-﻿using Tcs.RaceTimer.Models;
+﻿using Tcs.RaceTimer.ViewModels;
 using UnityEngine;
 
 public class CategoryTabButton : MonoBehaviour
 {
-    public Category Category;
+    public RaceCategoryViewModel RaceCategory;
 }
