@@ -18,7 +18,7 @@ public class AddRacePlayerButton : MonoBehaviour
     private void ShowAddRacePlayerDialog()
     {
         var go = ObjectPool.GetInstance().GetObjectForType("CreatePlayerDialog", true);
-        go.GetComponent<CreatePlayerDialog>().Reset();
+        go.GetComponent<CreatePlayerDialog>().Initialize();
 
         DialogService.GetInstance().Show(go);
     }

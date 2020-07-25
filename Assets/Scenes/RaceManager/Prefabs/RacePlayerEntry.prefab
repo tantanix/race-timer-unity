@@ -1432,7 +1432,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: S1
+  m_text: S5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: fc08199bd14553348a348f84c4cd8b42, type: 2}
   m_sharedMaterial: {fileID: 5743019210427402199, guid: fc08199bd14553348a348f84c4cd8b42,
@@ -3008,6 +3008,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2b79792c4e266c41899a5993751ae77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Toggle: {fileID: 4131986664506072380}
+  NumberText: {fileID: 4131986665457136426}
+  NameText: {fileID: 4131986664301879736}
+  TeamText: {fileID: 4131986664187412583}
+  S1Text: {fileID: 4131986664412696333}
+  S1RaceTimeText: {fileID: 4131986664924406677}
+  S2Text: {fileID: 4131986665645887157}
+  S2RaceTimeText: {fileID: 4131986664524957307}
+  S3Text: {fileID: 4131986664489291606}
+  S3RaceTimeText: {fileID: 4131986664471600311}
+  S4Text: {fileID: 4131986665687904849}
+  S4RaceTimeText: {fileID: 4131986664896797739}
+  S5Text: {fileID: 4131986664797927873}
+  S5RaceTimeText: {fileID: 4131986664992202192}
+  EditButton: {fileID: 4131986664147702911}
 --- !u!114 &1881027010
 MonoBehaviour:
   m_ObjectHideFlags: 0

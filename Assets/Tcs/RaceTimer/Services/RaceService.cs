@@ -18,7 +18,7 @@ namespace Tcs.RaceTimer.Services
         private readonly RaceCategoryRepository _raceCategoryRepository;
         private readonly RacePlayerRepository _racePlayerRepository;
 
-        private readonly BehaviorSubject<RaceViewModel> _currentRace = new BehaviorSubject<RaceViewModel>(null);
+        private readonly BehaviorSubject<Race> _currentRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
         private readonly BehaviorSubject<Team> _newTeam = new BehaviorSubject<Team>(null);
@@ -27,10 +27,10 @@ namespace Tcs.RaceTimer.Services
         private readonly BehaviorSubject<RaceCategoryViewModel> _newRaceCategory = new BehaviorSubject<RaceCategoryViewModel>(null);
         private readonly BehaviorSubject<RacePlayerViewModel> _newRacePlayer = new BehaviorSubject<RacePlayerViewModel>(null);
 
-        public RaceViewModel CurrentRace { get; private set; }
+        public Race CurrentRace { get; private set; }
         public RaceCategory CurrentCategory { get; private set; }
 
-        public IObservable<RaceViewModel> OnRaceLoaded() => _currentRace.AsObservable();
+        public IObservable<Race> OnRaceLoaded() => _currentRace.AsObservable();
         public IObservable<Race> OnNewRace() => _newRace.AsObservable();
         public IObservable<Player> OnNewPlayer() => _newPlayer.AsObservable();
         public IObservable<Team> OnNewTeam() => _newTeam.AsObservable();
@@ -56,19 +56,7 @@ namespace Tcs.RaceTimer.Services
 
         public void LoadRace(string raceId)
         {
-            var race = _raceRepository.Get(raceId);
-            var players = GetAllPlayers();
-            var racePlayers = GetAllRacePlayers(race.Id);
-            var raceCategories = GetAllRaceCategories(race.Id);
-            
-            CurrentRace = new RaceViewModel
-            {
-                Race = race,
-                Players = players.ToList(),
-                RacePlayers = racePlayers.ToList(),
-                RaceCategories = raceCategories.ToList()
-            };
-
+            CurrentRace = _raceRepository.Get(raceId);
             _currentRace.OnNext(CurrentRace);
         }
 
@@ -170,16 +158,16 @@ namespace Tcs.RaceTimer.Services
             return player;
         }
 
-        public RacePlayer CreateRacePlayer(string raceId, string name, int age, string email, string teamName)
+        public RacePlayer CreateRacePlayer(string name, int age, string email, string categoryName, string teamName)
         {
             var racePlayerId = Guid.NewGuid().ToString();
-            return CreateRacePlayer(racePlayerId, raceId, name, age, email, teamName);
+            return CreateRacePlayer(racePlayerId, name, age, email, categoryName, teamName);
         }
 
-        public RacePlayer CreateRacePlayer(string id, string raceId, string name, int age, string email, string teamName)
+        public RacePlayer CreateRacePlayer(string id, string name, int age, string email, string categoryName, string teamName)
         {
-            if (string.IsNullOrEmpty(raceId) || string.IsNullOrWhiteSpace(raceId))
-                throw new ArgumentException("raceId cannot be null or empty or whitespace.");
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
 
             if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("name cannot be null or empty or whitespace.");
@@ -190,14 +178,14 @@ namespace Tcs.RaceTimer.Services
             if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("email cannot be null or empty or whitespace.");
 
-            if (string.IsNullOrEmpty(teamName) || string.IsNullOrWhiteSpace(teamName))
-                throw new ArgumentException("teamName cannot be null or empty or whitespace.");
-
             var player = _playerRepository.FindByName(name);
             if (player == null)
             {
                 player = CreatePlayer(name, age, email);
             }
+
+            if (string.IsNullOrEmpty(teamName) || string.IsNullOrWhiteSpace(teamName))
+                return null;
 
             var team = _teamRepository.FindByName(teamName);
             if (team == null)
@@ -206,38 +194,60 @@ namespace Tcs.RaceTimer.Services
                 team = CreateTeam(teamId, teamName);
             }
 
-            var racePlayer = _racePlayerRepository.Find(raceId, team.Id, player.Id);
-            if (racePlayer == null)
+            if (string.IsNullOrEmpty(categoryName) || string.IsNullOrWhiteSpace(categoryName))
+                return null;
+
+            var category = _categoryRepository.FindByName(categoryName);
+            if (category == null)
             {
-                racePlayer = _racePlayerRepository.Create(
-                    raceId,
-                    new RacePlayer
-                    {
-                        Id = id,
-                        TeamId = team.Id,
-                        PlayerId = player.Id
-                    });
+                var categoryId = Guid.NewGuid().ToString();
+                category = CreateCategory(categoryId, categoryName);
             }
 
-            _newRacePlayer.OnNext(
-                new RacePlayerViewModel
+            if (player != null && team != null && category != null)
+            {
+                var racePlayer = _racePlayerRepository.Find(CurrentRace.Id, team.Id, player.Id);
+                if (racePlayer == null)
                 {
-                    Id = racePlayer.Id,
-                    Race = CurrentRace.Race,
-                    Team = team,
-                    Player = player
-                });
+                    racePlayer = _racePlayerRepository.Create(
+                        CurrentRace.Id,
+                        new RacePlayer
+                        {
+                            Id = id,
+                            CategoryId = category.Id,
+                            TeamId = team.Id,
+                            PlayerId = player.Id
+                        });
+                }
 
-            return racePlayer;
+                _newRacePlayer.OnNext(
+                    new RacePlayerViewModel
+                    {
+                        Id = racePlayer.Id,
+                        Race = CurrentRace,
+                        Team = team,
+                        Category = category,
+                        Player = player
+                    });
+
+                return racePlayer;
+            }
+
+            return null;
         }
 
-        public IEnumerable<RacePlayerViewModel> GetAllRacePlayers(string raceId)
+        public IEnumerable<RacePlayerViewModel> GetAllRacePlayers()
         {
-            var racePlayers = _racePlayerRepository.GetAll(raceId);
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
+
+            var racePlayers = _racePlayerRepository.GetAll(CurrentRace.Id);
             return racePlayers.Select(rp => 
                 new RacePlayerViewModel
                 {
                     Id = rp.Id,
+                    Race = CurrentRace,
+                    Category = _categoryRepository.Get(rp.CategoryId),
                     Team = _teamRepository.Get(rp.TeamId),
                     Player = _playerRepository.Get(rp.PlayerId)
                 });
@@ -270,9 +280,12 @@ namespace Tcs.RaceTimer.Services
             return _categoryRepository.GetAll();
         }
 
-        public IEnumerable<RaceCategoryViewModel> GetAllRaceCategories(string raceId)
+        public IEnumerable<RaceCategoryViewModel> GetAllRaceCategories()
         {
-            var raceCategories = _raceCategoryRepository.GetAll(raceId);
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
+
+            var raceCategories = _raceCategoryRepository.GetAll(CurrentRace.Id);
             var result = raceCategories
                 .Select(x => new RaceCategoryViewModel
                 {
@@ -282,9 +295,12 @@ namespace Tcs.RaceTimer.Services
             return result;
         }
 
-        public IEnumerable<RacePlayerViewModel> GetAllRaceCategoryPlayers(string raceId, string categoryId)
+        public IEnumerable<RacePlayerViewModel> GetAllRaceCategoryPlayers(string categoryId)
         {
-            var raceCategoryPlayers = _racePlayerRepository.GetAll(raceId).Where(x => x.CategoryId == categoryId);
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
+
+            var raceCategoryPlayers = _racePlayerRepository.GetAll(CurrentRace.Id).Where(x => x.CategoryId == categoryId);
             var result = raceCategoryPlayers
                 .Select(x => new RacePlayerViewModel
                 {
@@ -297,12 +313,12 @@ namespace Tcs.RaceTimer.Services
             return result;
         }
 
-        public RaceCategory AddRaceCategory(string raceId, string categoryName)
+        public RaceCategory AddRaceCategory(string categoryName)
         {
-            if (string.IsNullOrEmpty(raceId) || string.IsNullOrEmpty(categoryName))
-                return null;
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
 
-            var race = _raceRepository.Get(raceId);
+            var race = _raceRepository.Get(CurrentRace.Id);
             var category = _categoryRepository.FindByName(categoryName);
             if (category == null)
             {
@@ -310,7 +326,7 @@ namespace Tcs.RaceTimer.Services
             }
 
             // Don't add it if it's already been added
-            var exists = _raceCategoryRepository.FindByCategory(raceId, category.Id);
+            var exists = _raceCategoryRepository.FindByCategory(race.Id, category.Id);
             if (exists != null)
                 throw new CategoryAlreadyAddedToRaceException();
 

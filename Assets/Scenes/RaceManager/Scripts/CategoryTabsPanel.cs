@@ -38,9 +38,10 @@ public class CategoryTabsPanel : MonoBehaviour
             .Subscribe(AddRaceCategoryButton);
     }
 
-    private void LoadRaceCategories(RaceViewModel raceViewModel)
+    private void LoadRaceCategories(Race race)
     {
-        foreach (var category in raceViewModel.RaceCategories)
+        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories();
+        foreach (var category in raceCategories)
         {
             AddRaceCategoryButton(category);
         }

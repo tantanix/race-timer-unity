@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.ViewModels;
 using UniRx;
 using UnityEngine;
@@ -27,11 +28,12 @@ public class RacePlayersPanel : MonoBehaviour
             .Subscribe(CreateRacePlayer);
     }
 
-    private void LoadPlayerList(RaceViewModel raceModel)
+    private void LoadPlayerList(Race race)
     {
         ClearList();
 
-        foreach (var racePlayer in raceModel.RacePlayers)
+        var racePlayers = RaceTimerServices.GetInstance().RaceService.GetAllRacePlayers();
+        foreach (var racePlayer in racePlayers)
         {
             CreateRacePlayer(racePlayer);
         }

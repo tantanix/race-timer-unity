@@ -30,7 +30,7 @@ namespace Tcs.Core.Entity
 
         public TEntity Get(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
                 throw new EntityNotFoundException<TEntity>();
 
             string data = PlayerPrefs.GetString(id, null);

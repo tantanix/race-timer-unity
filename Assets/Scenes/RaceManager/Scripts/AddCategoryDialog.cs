@@ -68,10 +68,7 @@ public class AddCategoryDialog : MonoBehaviour
 
         try
         {
-            var raceService = RaceTimerServices.GetInstance().RaceService;
-            var race = raceService.CurrentRace;
-            
-            var newCategory = raceService.AddRaceCategory(race.Race.Id, name);
+            var newCategory = RaceTimerServices.GetInstance().RaceService.AddRaceCategory(name);
             if (newCategory == null)
                 throw new Exception("Failed to create category");
 
@@ -127,7 +124,7 @@ public class AddCategoryDialog : MonoBehaviour
 
         var currentRace = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var allCategories = RaceTimerServices.GetInstance().RaceService.GetAllCategories();
-        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories(currentRace.Race.Id).ToList();
+        var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories().ToList();
         
         _categories.Clear();
 

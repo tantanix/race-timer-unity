@@ -1,5 +1,5 @@
 ﻿using System;
-using Tcs.RaceTimer.ViewModels;
+using Tcs.RaceTimer.Models;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -31,14 +31,14 @@ public class RaceDetailsPanel : MonoBehaviour
             });
     }
 
-    public void SetRaceDetails(RaceViewModel raceModel)
+    public void SetRaceDetails(Race race)
     {
-        RaceNameText.text = $"{raceModel.Race.Name} - {raceModel.Race.Stages} Stages".ToUpperInvariant();
+        RaceNameText.text = $"{race.Name} - {race.Stages} Stages".ToUpperInvariant();
 
-        var date = new DateTime(raceModel.Race.EventDate);
+        var date = new DateTime(race.EventDate);
         EventDateText.text = $"{date:dddd, dd MMMM yyyy h:mm tt}";
 
-        LocationText.text = $"{raceModel.Race.Location}";
+        LocationText.text = $"{race.Location}";
     }
 
 }

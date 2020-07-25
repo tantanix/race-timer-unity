@@ -18,6 +18,8 @@ public class CreatePlayerForm
 
 public class CreatePlayerDialog : MonoBehaviour
 {
+    public const string SelectCategoryOption = "Select a category";
+
     public Color32 ValidBgColor = AppColors.FormFieldValid;
     public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
 
@@ -30,7 +32,8 @@ public class CreatePlayerDialog : MonoBehaviour
     public Button CloseButton;
 
     private bool isCategoryDropdownFocused = false;
-    private List<string> _categories;
+    private List<string> _categories = new List<string>();
+    private string _selectedCategory;
 
     void Start()
     {
@@ -39,33 +42,15 @@ public class CreatePlayerDialog : MonoBehaviour
             .TakeUntilDestroy(this)
             .Subscribe(_ => CreatePlayer());
 
+        CategoryDropdown
+            .OnTmpValueChangedAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(index => SelectCategory(index));
+
         CloseButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => Close());
-
-        RaceTimerServices.GetInstance()?.RaceService
-            .OnNewRaceCategory()
-            .TakeUntilDestroy(this)
-            .Subscribe(raceCategory =>
-            {
-                if (raceCategory != null)
-                {
-                    _categories.Add(raceCategory.Category.Name);
-                    UpdateCategoryList();
-                }
-            });
-
-        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
-        _categories = race.RaceCategories.Select(x => x.Category.Name).ToList();
-
-        UpdateCategoryList();
-    }
-
-    private void UpdateCategoryList()
-    {
-        CategoryDropdown.ClearOptions();
-        CategoryDropdown.AddOptions(_categories);
     }
 
     void Update()
@@ -93,12 +78,19 @@ public class CreatePlayerDialog : MonoBehaviour
         }
     }
 
+    private void SelectCategory(int index)
+    {
+        if (!_categories.Any())
+            return;
+
+        _selectedCategory = _categories[index];
+    }
+
     private void CreatePlayer()
     {
-        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var age = 0;
+        var category = _selectedCategory != SelectCategoryOption ? _selectedCategory : null;
 
-        var isRaceValid = race != null && !string.IsNullOrEmpty(race.Race.Id);
         var isNameValid = PlayerNameInput.text.Length > 0;
         var isTeamNameValid = TeamNameInput.text.Length > 0;
         var isAgeValid = AgeInput.text.Length > 0 && int.TryParse(AgeInput.text, out age);
@@ -109,20 +101,17 @@ public class CreatePlayerDialog : MonoBehaviour
         AgeInput.GetComponent<Image>().color = isAgeValid ? ValidBgColor : InvalidBgColor;
         EmailInput.GetComponent<Image>().color = isEmailValid ? ValidBgColor : InvalidBgColor;
 
-        if (!isRaceValid || !isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
+        if (!isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
             return;
 
         try
         {
             var playerInfo = RaceTimerServices.GetInstance().RaceService.CreateRacePlayer(
-                race.Race.Id,
                 PlayerNameInput.text,
                 age,
                 EmailInput.text,
+                category,
                 TeamNameInput.text);
-
-            if (playerInfo == null)
-                throw new Exception("Failed to create player");
 
             Close();
         }
@@ -137,11 +126,30 @@ public class CreatePlayerDialog : MonoBehaviour
         DialogService.GetInstance().Close(gameObject, true);
     }
 
-    public void Reset()
+    public void Initialize()
     {
         PlayerNameInput.text = "";
         TeamNameInput.text = "";
         AgeInput.text = "";
         EmailInput.text = "";
+
+        UpdateCategoryList();
     }
+
+    private void UpdateCategoryList()
+    {
+        _categories.Clear();
+        _categories.Add(SelectCategoryOption);
+
+        var allRaceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories();
+
+        foreach (var raceCategory in allRaceCategories)
+        {
+            _categories.Add(raceCategory.Category.Name);
+        }
+
+        CategoryDropdown.ClearOptions();
+        CategoryDropdown.AddOptions(_categories);
+    }
+
 }
