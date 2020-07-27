@@ -17,22 +17,25 @@ public class RacePlayersPanel : MonoBehaviour
 
         RaceTimerServices.GetInstance()
             .RaceService
-            .OnRaceLoaded()
+            .OnRaceCategoryLoaded()
             .TakeUntilDestroy(this)
             .Subscribe(LoadPlayerList);
 
         RaceTimerServices.GetInstance()
             .RaceService
-            .OnNewRacePlayer()
+            .OnNewRaceCategoryPlayer()
             .TakeUntilDestroy(this)
             .Subscribe(CreateRacePlayer);
     }
 
-    private void LoadPlayerList(Race race)
+    private void LoadPlayerList(RaceCategory raceCategory)
     {
+        if (raceCategory == null)
+            return;
+
         ClearList();
 
-        var racePlayers = RaceTimerServices.GetInstance().RaceService.GetAllRacePlayers();
+        var racePlayers = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategoryPlayers();
         foreach (var racePlayer in racePlayers)
         {
             CreateRacePlayer(racePlayer);
@@ -44,6 +47,7 @@ public class RacePlayersPanel : MonoBehaviour
         foreach (var instance in _racePlayerInstances)
         {
             instance.transform.SetParent(null);
+            instance.GetComponent<RacePlayerEntry>().SetInfo(null);
             ObjectPool.GetInstance().PoolObject(instance);
         }
 

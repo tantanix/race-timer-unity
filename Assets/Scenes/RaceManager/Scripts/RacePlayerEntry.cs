@@ -28,18 +28,25 @@ public class RacePlayerEntry : MonoBehaviour
 
     public void SetInfo(RacePlayerViewModel racePlayer)
     {
-        NameText.text = racePlayer.Player.Name;
-        TeamText.text = racePlayer.Team.Name;
+        if (racePlayer != null)
+        {
+            NameText.text = racePlayer.Player.Name;
+            TeamText.text = racePlayer.Team.Name;
 
-        S1Text.gameObject.SetActive(racePlayer.Race.Stages >= 1);
-        S1RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 1);
-        S2Text.gameObject.SetActive(racePlayer.Race.Stages >= 2);
-        S2RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 2);
-        S3Text.gameObject.SetActive(racePlayer.Race.Stages >= 3);
-        S3RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 3);
-        S4Text.gameObject.SetActive(racePlayer.Race.Stages >= 4);
-        S4RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 4);
-        S5Text.gameObject.SetActive(racePlayer.Race.Stages >= 5);
-        S5RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 5);
+            S1Text.gameObject.SetActive(racePlayer.Race.Stages >= 1);
+            S1RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 1);
+            S2Text.gameObject.SetActive(racePlayer.Race.Stages >= 2);
+            S2RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 2);
+            S3Text.gameObject.SetActive(racePlayer.Race.Stages >= 3);
+            S3RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 3);
+            S4Text.gameObject.SetActive(racePlayer.Race.Stages >= 4);
+            S4RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 4);
+            S5Text.gameObject.SetActive(racePlayer.Race.Stages >= 5);
+            S5RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 5);
+        }
+        else
+        {
+
+        }
     }
 }

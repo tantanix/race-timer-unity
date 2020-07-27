@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.ViewModels;
-using TMPro;
 using UniRx;
 using UnityEngine;
 
@@ -53,12 +51,10 @@ public class CategoryTabsPanel : MonoBehaviour
             return;
 
         var go = ObjectPool.GetInstance().GetObjectForType("CategoryTabButton", false);
-        go.GetComponentInChildren<TMP_Text>().text = raceCategory.Category.Name;
+        go.GetComponent<CategoryTabButton>().SetRaceCategory(raceCategory);
+
         go.transform.localScale = Vector3.one;
         go.transform.SetParent(CategoryButtonContainer, false);
-        //go.transform.SetSiblingIndex(1);
-
-        go.GetComponent<CategoryTabButton>().RaceCategory = raceCategory;
 
         _buttonInstances.Add(go);
     }
@@ -68,6 +64,7 @@ public class CategoryTabsPanel : MonoBehaviour
         foreach (var instance in _buttonInstances)
         {
             instance.transform.SetParent(null);
+            instance.GetComponent<CategoryTabButton>().SetRaceCategory(null);
             ObjectPool.GetInstance().PoolObject(instance);
         }
 
