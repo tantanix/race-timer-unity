@@ -122,12 +122,18 @@ public class AddCategoryDialog : MonoBehaviour
         NameInput.text = "";
         NameInput.gameObject.SetActive(false);
 
+        InitializeCategoryDropdown();
+
+        CreateButton.interactable = false;
+    }
+
+    private void InitializeCategoryDropdown()
+    {
         var currentRace = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var allCategories = RaceTimerServices.GetInstance().RaceService.GetAllCategories();
         var raceCategories = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategories().ToList();
-        
-        _categories.Clear();
 
+        _categories.Clear();
         _categories.Add(SelectCategoryOption);
 
         foreach (var category in allCategories)
@@ -137,11 +143,10 @@ public class AddCategoryDialog : MonoBehaviour
                 _categories.Add(category.Name);
             }
         }
+
         _categories.Add(CreateNewCategoryOption);
 
         CategoryDropdown.ClearOptions();
         CategoryDropdown.AddOptions(_categories);
-
-        CreateButton.interactable = false;
     }
 }

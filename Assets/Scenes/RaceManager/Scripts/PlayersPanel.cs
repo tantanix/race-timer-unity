@@ -29,10 +29,10 @@ public class PlayersPanel : MonoBehaviour
 
     public void LoadPlayerList(Race race)
     {
+        ClearList();
+
         if (race == null)
             return;
-
-        ClearList();
 
         var players = RaceTimerServices.GetInstance().RaceService.GetAllPlayers();
         foreach (var player in players)

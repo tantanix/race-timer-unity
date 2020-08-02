@@ -26,6 +26,14 @@ namespace Tcs.Core.Entity
             return model;
         }
 
+        public TEntity Update(string parentId, TEntity model)
+        {
+            var json = JsonUtility.ToJson(model);
+            PlayerPrefs.SetString(model.Id, json);
+
+            return model;
+        }
+
         public TEntity Get(string id)
         {
             if (string.IsNullOrEmpty(id))

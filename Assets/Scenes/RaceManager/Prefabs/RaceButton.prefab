@@ -108,7 +108,7 @@ MonoBehaviour:
     m_HighlightedSprite: {fileID: 21300000, guid: 956ce13d8eecd6b4eb8b3a9375d2ef13,
       type: 3}
     m_PressedSprite: {fileID: 21300000, guid: a9e6711415916374cb2ec2893c7ce2bd, type: 3}
-    m_SelectedSprite: {fileID: 21300000, guid: ec957c5e6dfb39243bf38f206e1b7a50, type: 3}
+    m_SelectedSprite: {fileID: 21300000, guid: 956ce13d8eecd6b4eb8b3a9375d2ef13, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -133,6 +133,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f81a03af96922764cb6b2101f4a14666, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Race:
+    Id: 
+    Name: 
+    EventDate: 0
+    Stages: 0
+    Location: 
 --- !u!1 &410445374050476816
 GameObject:
   m_ObjectHideFlags: 0

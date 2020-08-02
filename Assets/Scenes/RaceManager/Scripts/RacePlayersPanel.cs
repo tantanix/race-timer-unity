@@ -19,7 +19,7 @@ public class RacePlayersPanel : MonoBehaviour
             .RaceService
             .OnRaceCategoryLoaded()
             .TakeUntilDestroy(this)
-            .Subscribe(LoadPlayerList);
+            .Subscribe(LoadCategoryPlayers);
 
         RaceTimerServices.GetInstance()
             .RaceService
@@ -28,12 +28,14 @@ public class RacePlayersPanel : MonoBehaviour
             .Subscribe(CreateRacePlayer);
     }
 
-    private void LoadPlayerList(RaceCategory raceCategory)
+    private void LoadCategoryPlayers(RaceCategory raceCategory)
     {
-        if (raceCategory == null)
-            return;
-
         ClearList();
+
+        if (raceCategory == null)
+        {
+            return;
+        }
 
         var racePlayers = RaceTimerServices.GetInstance().RaceService.GetAllRaceCategoryPlayers();
         foreach (var racePlayer in racePlayers)
