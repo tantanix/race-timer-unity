@@ -15,9 +15,9 @@ namespace Tcs.Core.Entity
             _listKey = listKey;
         }
 
-        public TEntity Create(TEntity model)
+        public virtual TEntity Create(TEntity model)
         {
-            if (model == null)
+            if (model == null || string.IsNullOrEmpty(model.Id))
                 return null;
 
             var json = JsonUtility.ToJson(model);
@@ -28,7 +28,7 @@ namespace Tcs.Core.Entity
             return model;
         }
 
-        public TEntity Get(string id)
+        public virtual TEntity Get(string id)
         {
             if (string.IsNullOrEmpty(id))
                 throw new EntityNotFoundException<TEntity>();
@@ -42,7 +42,7 @@ namespace Tcs.Core.Entity
             return model;
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public virtual IEnumerable<TEntity> GetAll()
         {
             if (PlayerPrefs.HasKey(_listKey))
             {
@@ -57,7 +57,7 @@ namespace Tcs.Core.Entity
             return new List<TEntity>();
         }
 
-        public void Delete(string id)
+        public virtual void Delete(string id)
         {
             var data = PlayerPrefs.GetString(id, null);
             if (string.IsNullOrEmpty(data))

@@ -88,46 +88,78 @@ namespace Tcs.RaceTimer.Services
             _currentRaceCategory.OnNext(CurrentRaceCategory);
         }
 
-        public void SetAutoTiming(int selectedStage, DateTime startTime, float playerIntervalSeconds, float categoryIntervalSeconds)
+        public void SetAutoTiming(
+            TimeSpan startTime,
+            int playerIntervalSeconds,
+            int categoryIntervalSeconds,
+            int stageIntervalSeconds,
+            bool hasBreak,
+            TimeSpan? startTimeAfterBreak,
+            int? stageAfterBreak)
         {
-            var date = startTime;
-            var raceCategories = GetAllRaceCategories();
-            foreach (var raceCategory in raceCategories)
+            TimeSpan date = startTime;
+            TimeSpan previousStageStartTime;
+            int stage = 1;
+
+            do
             {
-                var raceCategoryPlayers = GetAllRaceCategoryPlayers(raceCategory.Category.Id);
-                foreach (var raceCategoryPlayer in raceCategoryPlayers)
+                if (hasBreak)
                 {
-                    var player = _playerRepository.Get(raceCategoryPlayer.Id);
+                    if (!stageAfterBreak.HasValue || !startTimeAfterBreak.HasValue)
+                        throw new AutoTimingException("No start time and stage after break set when the add break flag is true");
 
-                    var logTime = new LogTime
+                    if (stage == stageAfterBreak.Value)
                     {
-                        Hours = date.Hour,
-                        Minutes = date.Minute,
-                        Seconds = date.Second,
-                        Milliseconds = date.Millisecond
-                    };
-
-                    var racePlayerTime = new RacePlayerTime
-                    {
-                        RaceId = CurrentRace.Id,
-                        PlayerId = player.Id,
-                        CategoryId = raceCategory.Category.Id,
-                        Stage = selectedStage,
-                        Time = logTime,
-                        Type = TimeType.Start
-                    };
-                    _racePlayerTimeRepository.CreateOrUpdate(racePlayerTime);
-
-                    date.AddSeconds(playerIntervalSeconds);
+                        date = startTimeAfterBreak.Value;
+                    }
                 }
 
-                date.AddSeconds(categoryIntervalSeconds);
-            }
+                previousStageStartTime = date;
+
+                var raceCategories = GetAllRaceCategories();
+                foreach (var raceCategory in raceCategories)
+                {
+                    var raceCategoryPlayers = GetAllRaceCategoryPlayers(raceCategory.Category.Id);
+                    foreach (var raceCategoryPlayer in raceCategoryPlayers)
+                    {
+                        var player = _playerRepository.Get(raceCategoryPlayer.Player.Id);
+
+                        var logTime = new LogTime
+                        {
+                            Hours = date.Hours,
+                            Minutes = date.Minutes,
+                            Seconds = date.Seconds,
+                            Milliseconds = date.Milliseconds
+                        };
+
+                        var result = CreateRacePlayerTime(
+                            CurrentRace.Id,
+                            player.Id,
+                            raceCategory.Category.Id,
+                            stage,
+                            logTime,
+                            TimeType.Start);
+
+                        if (result == null)
+                            throw new AutoTimingException("Failed to create race player time");
+
+                        date = date.Add(new TimeSpan(0, 0, playerIntervalSeconds));
+                    }
+
+                    // Subtract last added player interval time
+                    date = date.Subtract(new TimeSpan(0, 0, playerIntervalSeconds));
+
+                    date = date.Add(new TimeSpan(0, 0, categoryIntervalSeconds));
+                }
+
+                date = previousStageStartTime.Add(new TimeSpan(0, 0, stageIntervalSeconds));
+
+            } while (++stage <= CurrentRace.Stages);
         }
 
         public Race CreateRace(string name, long eventDate, int stages, string location)
         {
-            var id = Guid.NewGuid().ToString();
+            var id = $"Race-{Guid.NewGuid()}";
             var newRace = _raceRepository.Create(
                 new Race
                 {
@@ -156,6 +188,24 @@ namespace Tcs.RaceTimer.Services
             return newRace;
         }
 
+        public RacePlayerTime CreateRacePlayerTime(string raceId, string playerId, string categoryId, int stage, LogTime logTime, TimeType timeType)
+        {
+            var newId = Guid.NewGuid().ToString();
+            var racePlayerTime = new RacePlayerTime
+            {
+                Id = newId,
+                RaceId = raceId,
+                PlayerId = playerId,
+                CategoryId = categoryId,
+                Stage = stage,
+                Time = logTime,
+                Type = TimeType.Start
+            };
+
+            var result = _racePlayerTimeRepository.CreateOrUpdate(racePlayerTime);
+            return result;
+        }
+
         public IEnumerable<Race> GetAllRaces()
         {
             return _raceRepository.GetAll();
@@ -163,8 +213,7 @@ namespace Tcs.RaceTimer.Services
 
         public Team CreateTeam(string name)
         {
-            var newId = Guid.NewGuid().ToString();
-
+            var newId = $"Team-{Guid.NewGuid()}";
             return CreateTeam(newId, name);
         }
 
@@ -188,7 +237,7 @@ namespace Tcs.RaceTimer.Services
 
         public Player CreatePlayer(string name, int age, string email)
         {
-            var newId = Guid.NewGuid().ToString();
+            var newId = _playerRepository.GenerateId();
             return CreatePlayer(newId, name, age, email);
         }
 
@@ -290,6 +339,8 @@ namespace Tcs.RaceTimer.Services
                         Category = category,
                         Player = player
                     });
+                UnityEngine.Debug.Log(player.Id);
+                UnityEngine.Debug.Log(string.Join(", ", GetAllRacePlayers().Select(x => x.Player.Id)));
 
                 return racePlayer;
             }
@@ -303,6 +354,7 @@ namespace Tcs.RaceTimer.Services
                 throw new RaceNotLoadedException();
 
             var racePlayers = _racePlayerRepository.GetAll(CurrentRace.Id);
+            
             return racePlayers.Select(rp => 
                 new RacePlayerViewModel
                 {
@@ -310,7 +362,8 @@ namespace Tcs.RaceTimer.Services
                     Race = CurrentRace,
                     Category = _categoryRepository.Get(rp.CategoryId),
                     Team = _teamRepository.Get(rp.TeamId),
-                    Player = _playerRepository.Get(rp.PlayerId)
+                    Player = _playerRepository.Get(rp.PlayerId),
+                    PlayerTimes = _racePlayerTimeRepository.GetAllByRaceCategoryPlayer(CurrentRace.Id, rp.CategoryId, rp.PlayerId).ToList()
                 });
         }
 
@@ -332,8 +385,8 @@ namespace Tcs.RaceTimer.Services
 
         public Category CreateCategory(string name)
         {
-            var categoryId = Guid.NewGuid().ToString();
-            return CreateCategory(categoryId, name);
+            var newId = $"Category-{Guid.NewGuid()}";
+            return CreateCategory(newId, name);
         }
 
         public Category CreateCategory(string id, string name)
@@ -381,7 +434,8 @@ namespace Tcs.RaceTimer.Services
                     Category = _categoryRepository.Get(x.CategoryId),
                     Player = _playerRepository.Get(x.PlayerId),
                     Team = _teamRepository.Get(x.TeamId),
-                    Race = _raceRepository.Get(x.RaceId)
+                    Race = _raceRepository.Get(x.RaceId),
+                    PlayerTimes = _racePlayerTimeRepository.GetAllByRaceCategoryPlayer(CurrentRace.Id, x.CategoryId, x.PlayerId).ToList()
                 });
 
             return result;

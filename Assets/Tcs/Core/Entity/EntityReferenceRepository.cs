@@ -18,6 +18,9 @@ namespace Tcs.Core.Entity
 
         public TEntity Create(string parentId, TEntity model)
         {
+            if (model == null || string.IsNullOrEmpty(model.Id))
+                return null;
+
             var json = JsonUtility.ToJson(model);
             PlayerPrefs.SetString(model.Id, json);
 
@@ -28,6 +31,9 @@ namespace Tcs.Core.Entity
 
         public TEntity Update(string parentId, TEntity model)
         {
+            if (model == null || string.IsNullOrEmpty(model.Id))
+                return null;
+
             var json = JsonUtility.ToJson(model);
             PlayerPrefs.SetString(model.Id, json);
 
@@ -71,6 +77,9 @@ namespace Tcs.Core.Entity
 
         private void AddToList(string parentId, string id)
         {
+            if (string.IsNullOrEmpty(id))
+                return;
+
             TEntityList list;
             var key = GetListKey(parentId);
 

@@ -1,4 +1,6 @@
-﻿using Tcs.RaceTimer.ViewModels;
+﻿using System.Linq;
+using Tcs.RaceTimer.Models;
+using Tcs.RaceTimer.ViewModels;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,10 +49,27 @@ public class RacePlayerEntry : MonoBehaviour
 
             S5Text.gameObject.SetActive(racePlayer.Race.Stages >= 5);
             S5RaceTimeText.gameObject.SetActive(racePlayer.Race.Stages >= 5);
+
+            S1RaceTimeText.text = FormatRacePlayerTime(racePlayer.PlayerTimes?.FirstOrDefault(x => x.Stage == 1));
+            S2RaceTimeText.text = FormatRacePlayerTime(racePlayer.PlayerTimes?.FirstOrDefault(x => x.Stage == 2));
+            S3RaceTimeText.text = FormatRacePlayerTime(racePlayer.PlayerTimes?.FirstOrDefault(x => x.Stage == 3));
+            S4RaceTimeText.text = FormatRacePlayerTime(racePlayer.PlayerTimes?.FirstOrDefault(x => x.Stage == 4));
+            S5RaceTimeText.text = FormatRacePlayerTime(racePlayer.PlayerTimes?.FirstOrDefault(x => x.Stage == 5));
         }
         else
         {
 
         }
+    }
+
+    private string FormatRacePlayerTime(RacePlayerTime racePlayerTime)
+    {
+        if (racePlayerTime == null)
+            return "00:00:00";
+
+        var timeOfDay = racePlayerTime.Time.Hours >= 12 ? "PM" : "AM";
+        var hours = racePlayerTime.Time.Hours >= 12 ? racePlayerTime.Time.Hours - 12 : racePlayerTime.Time.Hours;
+
+        return string.Format($"{hours:D2}:{racePlayerTime.Time.Minutes:D2}:{racePlayerTime.Time.Seconds:D2} {timeOfDay}");
     }
 }

@@ -1,4 +1,5 @@
-﻿using Tcs.RaceTimer.Models;
+﻿using System.Collections.Generic;
+using Tcs.RaceTimer.Models;
 
 namespace Tcs.RaceTimer.ViewModels
 {
@@ -11,6 +12,6 @@ namespace Tcs.RaceTimer.ViewModels
         public Team Team;
         public Player Player;
         public int No;
-        public long StartTime;
+        public List<RacePlayerTime> PlayerTimes;
     }
 }

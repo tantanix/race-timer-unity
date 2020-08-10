@@ -8,29 +8,55 @@ using UnityEngine.UI;
 
 public class AutoTimingDialog : MonoBehaviour
 {
-    public const string SelectStageOption = "Select a stage";
+    public const string SelectStageOption = "Select a starting stage *";
+    public const string SelectStageAfterBreakOption = "Select a starting stage after break (optional)";
     public const string SelectStartTimeOption = "Select start time";
 
     public Color32 ValidBgColor = AppColors.FormFieldValid;
+    public Color32 ValidTimeOfDayBgColor = AppColors.FormTimeOfDayFieldValid;
     public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
 
-    public TMP_Dropdown StageDropdown;
-    public TimeOfDayInput TimeOfDay;
+    public TimeOfDayInput StartRaceTimeOfDay;
     public TMP_InputField RiderIntervalSecondsInput;
     public TMP_InputField CategoryIntervalSecondsInput;
+    public TMP_InputField StageIntervalSecondsInput;
+
+    public Toggle AddBreakToggle;
+    public TimeOfDayInput AfterBreakTimeOfDay;
+    public TMP_Dropdown StageAfterBreakDropdown;
+
     public Button SetButton;
     public Button CloseButton;
 
-    private List<string> _stages = new List<string>();
-    private List<string> _timeSlots = new List<string>();
-    private int _selectedStage;
+    private List<string> _stagesAfterBreak = new List<string>();
+    
+    private int? _selectedStageAfterBreak;
+    private TimeSpan? _selectedStartRaceTimeOfDay;
+    private TimeSpan? _selectedStartRaceAfterBreakTimeOfDay;
 
     private void Start()
     {
-        StageDropdown
+        StartRaceTimeOfDay
+            .OnValueChanged
+            .AsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(SetStartRaceTimeOfDay);
+
+        StageAfterBreakDropdown
             .OnTmpValueChangedAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(index => SelectStage(index));
+            .Subscribe(SelectStageAfterBreak);
+
+        AfterBreakTimeOfDay
+            .OnValueChanged
+            .AsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(SetStartRaceAfterBreakTimeOfDay);
+
+        AddBreakToggle
+            .OnValueChangedAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(ShowBreakOptions);
 
         CloseButton
             .OnClickAsObservable()
@@ -45,46 +71,79 @@ public class AutoTimingDialog : MonoBehaviour
 
     public void Initialize()
     {
-        InitializeStageDropdown();
+        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
+
+        StartRaceTimeOfDay.Initialize();
+        RiderIntervalSecondsInput.text = "";
+        CategoryIntervalSecondsInput.text = "";
+
+        AddBreakToggle.isOn = false;
+        InitializeStageDropdowns(race.Stages, _stagesAfterBreak, SelectStageAfterBreakOption, StageAfterBreakDropdown);
+        AfterBreakTimeOfDay.Initialize();
+        
+        _selectedStageAfterBreak = null;
+        _selectedStartRaceAfterBreakTimeOfDay = null;
+        _selectedStartRaceTimeOfDay = null;
+
+        AddBreakToggle.isOn = false;
     }
 
-    private void InitializeStageDropdown()
+    private void InitializeStageDropdowns(int stagesCount, List<string> stages, string defaultOption, TMP_Dropdown dropdown)
     {
-        _stages.Clear();
-        _stages.Add(SelectStageOption);
+        stages.Clear();
+        stages.Add(defaultOption);
 
-        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         var i = 1;
-        while (i <= race.Stages)
+        while (i <= stagesCount)
         {
-            _stages.Add($"Stage {i}");
+            stages.Add($"Stage {i}");
             i++;
         }
 
-        StageDropdown.ClearOptions();
-        StageDropdown.AddOptions(_stages);
+        dropdown.ClearOptions();
+        dropdown.AddOptions(stages);
     }
 
     private void SetTiming()
     {
-        var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
-
-        var isStageValid = _selectedStage > 0 && _selectedStage <= race.Stages;
-        var isRiderIntervalValid = float.TryParse(RiderIntervalSecondsInput.text, out float riderInterval);
-        var isCategoryIntervalValid = float.TryParse(CategoryIntervalSecondsInput.text, out float categoryInterval);
-
-        StageDropdown.GetComponent<Image>().color = isStageValid ? ValidBgColor : InvalidBgColor;
+        var hasBreak = AddBreakToggle.isOn;
+        var isStartRaceTimeValid = _selectedStartRaceTimeOfDay.HasValue;
+        var isRiderIntervalValid = int.TryParse(RiderIntervalSecondsInput.text, out int riderInterval);
+        var isCategoryIntervalValid = int.TryParse(CategoryIntervalSecondsInput.text, out int categoryInterval);
+        var isStageIntervalValid = int.TryParse(StageIntervalSecondsInput.text, out int stageInterval);
+        
+        StartRaceTimeOfDay.GetComponent<Image>().color = isStartRaceTimeValid ? ValidTimeOfDayBgColor : InvalidBgColor;
         RiderIntervalSecondsInput.GetComponent<Image>().color = isRiderIntervalValid ? ValidBgColor : InvalidBgColor;
         CategoryIntervalSecondsInput.GetComponent<Image>().color = isCategoryIntervalValid ? ValidBgColor : InvalidBgColor;
+        StageIntervalSecondsInput.GetComponent<Image>().color = isStageIntervalValid ? ValidBgColor : InvalidBgColor;
 
-        if (!isStageValid || !isRiderIntervalValid || !isCategoryIntervalValid)
+        bool isStartTimeAfterBreakValid = true;
+        bool isStageAfterBreakValid = true;
+
+        if (hasBreak)
+        {
+            isStartTimeAfterBreakValid = _selectedStartRaceAfterBreakTimeOfDay.HasValue;
+            isStageAfterBreakValid = _selectedStageAfterBreak.HasValue;
+
+            AfterBreakTimeOfDay.GetComponent<Image>().color = isStartTimeAfterBreakValid ? ValidTimeOfDayBgColor : InvalidBgColor;
+            StageAfterBreakDropdown.GetComponent<Image>().color = isStageAfterBreakValid ? ValidBgColor : InvalidBgColor;
+        }
+
+        if (!isRiderIntervalValid || !isCategoryIntervalValid || !isStageIntervalValid || !isStartTimeAfterBreakValid || !isStageAfterBreakValid)
             return;
 
         try
         {
             RaceTimerServices.GetInstance()
                 .RaceService
-                .SetAutoTiming(_selectedStage, DateTime.Now, riderInterval, categoryInterval);
+                .SetAutoTiming(
+                    _selectedStartRaceTimeOfDay.Value,
+                    riderInterval,
+                    categoryInterval,
+                    stageInterval,
+                    hasBreak,
+                    _selectedStartRaceAfterBreakTimeOfDay,
+                    _selectedStageAfterBreak);
         }
         catch (Exception ex)
         {
@@ -92,25 +151,48 @@ public class AutoTimingDialog : MonoBehaviour
         }
     }
 
-    private void SelectStage(int index)
+    private void SelectStageAfterBreak(int index)
     {
-        var selectedStage = _stages[index];
-        if (int.TryParse(selectedStage.Replace("Stage ", ""), out int stage)) {
+        var selectedStage = _stagesAfterBreak[index];
+        if (int.TryParse(selectedStage.Replace("Stage ", ""), out int stage))
+        {
             var race = RaceTimerServices.GetInstance().RaceService.CurrentRace;
 
             if (stage > 0 && stage <= race.Stages)
             {
-                _selectedStage = stage;
+                _selectedStageAfterBreak = stage;
                 return;
             }
         }
-        else if (selectedStage == SelectStageOption)
+        else if (selectedStage == SelectStageAfterBreakOption)
         {
-            _selectedStage = 0;
+            _selectedStageAfterBreak = null;
             return;
         }
 
-        throw new UnityException("Not a valid stage"); 
+        throw new UnityException("Not a valid stage");
+    }
+
+    private void SetStartRaceTimeOfDay(TimeSpan timeSpan)
+    {
+        if (timeSpan.Ticks > 0)
+            _selectedStartRaceTimeOfDay = timeSpan;
+        else
+            _selectedStartRaceTimeOfDay = null;
+    }
+
+    private void SetStartRaceAfterBreakTimeOfDay(TimeSpan timeSpan)
+    {
+        if (timeSpan.Ticks > 0)
+            _selectedStartRaceAfterBreakTimeOfDay = timeSpan;
+        else
+            _selectedStartRaceAfterBreakTimeOfDay = null;
+    }
+
+    private void ShowBreakOptions(bool isOn)
+    {
+        AfterBreakTimeOfDay.gameObject.SetActive(isOn);
+        StageAfterBreakDropdown.gameObject.SetActive(isOn);
     }
 
     private void Close()
