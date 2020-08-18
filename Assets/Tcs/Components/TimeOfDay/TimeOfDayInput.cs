@@ -5,11 +5,12 @@ using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class TimeOfDayInput : MonoBehaviour
 {
     [System.Serializable]
-    public class TimeOfDayEvent : UnityEvent<TimeSpan>
+    public class TimeOfDayEvent : UnityEvent<TimeSpan?>
     {
         public TimeOfDayEvent() { }
     }
@@ -23,18 +24,19 @@ public class TimeOfDayInput : MonoBehaviour
     public TMP_Dropdown HourDropdown;
     public TMP_Dropdown MinuteDropdown;
     public TMP_Dropdown AmPmDropdown;
+    public Button ConfirmButton;
 
     public TimeOfDayEvent OnValueChanged = new TimeOfDayEvent();
-    public TimeSpan Value => GetCurrentTimespan();
+    public TimeSpan? CurrentTimeSpan;
 
     private List<string> _hours = new List<string>();
     private List<string> _minutes = new List<string>();
     private List<string> _ampm = new List<string>();
     
-    private int _selectedHour;
-    private int _selectedMinute;
+    private int? _selectedHour;
+    private int? _selectedMinute;
     private string _selectedAmPm;
-
+    
     private void Start()
     {
         Initialize();
@@ -53,10 +55,17 @@ public class TimeOfDayInput : MonoBehaviour
             .OnTmpValueChangedAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(index => SelectAmPm(index));
+
+        ConfirmButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => ConfirmChange());
     }
 
     public void Initialize()
     {
+        CurrentTimeSpan = null;
+
         // Hours
         _hours.Clear();
         _hours.Add(HourOption);
@@ -68,6 +77,7 @@ public class TimeOfDayInput : MonoBehaviour
 
         HourDropdown.ClearOptions();
         HourDropdown.AddOptions(_hours);
+        _selectedHour = null;
 
         // Minutes
         _minutes.Clear();
@@ -80,6 +90,8 @@ public class TimeOfDayInput : MonoBehaviour
 
         MinuteDropdown.ClearOptions();
         MinuteDropdown.AddOptions(_minutes);
+        MinuteDropdown.SetValueWithoutNotify(1);
+        _selectedMinute = 0;
 
         // AM PM
         _ampm.Clear();
@@ -95,44 +107,55 @@ public class TimeOfDayInput : MonoBehaviour
     private void SelectHour(int index)
     {
         var selectedHour = _hours[index];
+        _selectedHour = null;
         if (int.TryParse(selectedHour, out int hour))
         {
             _selectedHour = hour;
-            OnValueChanged.Invoke(GetCurrentTimespan());
-        }
-        else if (selectedHour == HourOption)
-        {
-            _selectedHour = -1;
         }
     }
 
     private void SelectMinute(int index)
     {
         var selectedMinute = _minutes[index];
+        _selectedMinute = null;
         if (int.TryParse(selectedMinute, out int minute))
         {
             _selectedMinute = minute;
-            OnValueChanged.Invoke(GetCurrentTimespan());
-        }
-        else if (selectedMinute == MinuteOption)
-        {
-            _selectedMinute = -1;
         }
     }
 
     private void SelectAmPm(int index)
     {
         _selectedAmPm = _ampm[index];
-        OnValueChanged.Invoke(GetCurrentTimespan());
     }
 
-    private TimeSpan GetCurrentTimespan()
+    private void ConfirmChange()
     {
-        if (_selectedHour < 0 || _selectedMinute < 0)
-            return new TimeSpan();
+        CurrentTimeSpan = GetCurrentTimespan();
+        OnValueChanged.Invoke(CurrentTimeSpan);
+    }
 
-        var hours = _selectedAmPm == AM ? _selectedHour : _selectedHour + 12;
+    private TimeSpan? GetCurrentTimespan()
+    {
+        if (!_selectedHour.HasValue || !_selectedMinute.HasValue)
+            return null;
+
+        var hours = _selectedHour == 12 && _selectedAmPm == AM ? _selectedHour - 12 : _selectedHour;
+        if (_selectedHour == 12)
+        {
+            if (_selectedAmPm == AM)
+                hours = 0;
+            else
+                hours = _selectedHour;
+        }
+        else
+        {
+            if (_selectedAmPm == AM)
+                hours = _selectedHour;
+            else
+                hours += 12;
+        }
         
-        return new TimeSpan(hours, _selectedMinute, 0);
+        return new TimeSpan(hours.Value, _selectedMinute.Value, 0);
     }
 }

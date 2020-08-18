@@ -9,6 +9,7 @@ public class CreateRaceDialog : MonoBehaviour
 {
     public Color32 ValidBgColor;
     public Color32 RequiredBgColor;
+    public TMP_Text DialogTitleText;
     public TMP_InputField RaceNameInput;
     public TMP_InputField NumberOfStagesInput;
     public TMP_InputField EventDateInput;
@@ -27,6 +28,31 @@ public class CreateRaceDialog : MonoBehaviour
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => OnClose());
+    }
+
+    internal void CreateNewRace()
+    {
+        RaceNameInput.text = "";
+        NumberOfStagesInput.text = "";
+        EventDateInput.text = "";
+        LocationInput.text = "";
+
+        DialogTitleText.text = "Create Race";
+        CreateRaceButton.GetComponentInChildren<TMP_Text>().text = "Create";
+    }
+
+    public void EditCurrentRace()
+    {
+        var currentRace = RaceTimerServices.GetInstance().RaceService.CurrentRace;
+        RaceNameInput.text = currentRace.Name;
+        NumberOfStagesInput.text = currentRace.Stages.ToString();
+
+        IFormatProvider culture = new CultureInfo("en-US", true);
+        EventDateInput.text = new DateTime(currentRace.EventDate).ToString("yyyy-MM-dd", culture);
+        LocationInput.text = currentRace.Location;
+
+        DialogTitleText.text = "Edit Race";
+        CreateRaceButton.GetComponentInChildren<TMP_Text>().text = "Edit";
     }
 
     void Update()

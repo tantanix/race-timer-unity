@@ -4,9 +4,10 @@ namespace Tcs.Unity
 {
     public class AppColors
     {
+        public static readonly Color32 FormInputBgColor = HexToColor("FFFFFF00");
         public static readonly Color32 FormFieldValid = HexToColor("1A1C1F98");
         public static readonly Color32 FormTimeOfDayFieldValid = HexToColor("FFFFFF00");
-        public static readonly Color32 FormFieldInvalid = HexToColor("6A201D98");
+        public static readonly Color32 FormFieldInvalid = HexToColor("FF6562FF");
 
         public static Color HexToColor(string hex)
         {

@@ -23,5 +23,14 @@ namespace Tcs.Unity
                 return i.onValueChanged.AsObservable().Subscribe(observer);
             });
         }
+
+        public static IObservable<TimeSpan?> OnValueChangedAsObservable(this TimeOfDayInput timeOfDay)
+        {
+            return Observable.CreateWithState<TimeSpan?, TimeOfDayInput>(timeOfDay, (i, observer) =>
+            {
+                observer.OnNext(i.CurrentTimeSpan);
+                return i.OnValueChanged.AsObservable().Subscribe(observer);
+            });
+        }
     }
 }

@@ -2965,6 +2965,7 @@ MonoBehaviour:
   RequiredBgColor:
     serializedVersion: 2
     rgba: 1646076010
+  DialogTitleText: {fileID: 8904415064087754036}
   RaceNameInput: {fileID: 2512473686344918964}
   NumberOfStagesInput: {fileID: 2512473686397015910}
   EventDateInput: {fileID: 2512473686616992325}

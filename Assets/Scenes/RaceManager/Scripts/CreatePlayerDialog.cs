@@ -23,10 +23,10 @@ public class CreatePlayerDialog : MonoBehaviour
     public Color32 ValidBgColor = AppColors.FormFieldValid;
     public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
 
-    public TMP_InputField PlayerNameInput;
-    public TMP_InputField TeamNameInput;
-    public TMP_InputField AgeInput;
-    public TMP_InputField EmailInput;
+    public MatInput PlayerNameInput;
+    public MatInput TeamNameInput;
+    public MatInput AgeInput;
+    public MatInput EmailInput;
     public TMP_Dropdown CategoryDropdown;
     public Button CreatePlayerButton;
     public Button CloseButton;
@@ -55,27 +55,27 @@ public class CreatePlayerDialog : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            if (PlayerNameInput.isFocused)
-                TeamNameInput.Select();
-            else if (TeamNameInput.isFocused)
-                AgeInput.Select();
-            else if (AgeInput.isFocused)
-                EmailInput.Select();
-            else if (EmailInput.isFocused)
-            {
-                CategoryDropdown.Select();
-                isCategoryDropdownFocused = true;
-            }
-            else if (isCategoryDropdownFocused)
-            {
-                CreatePlayerButton.Select();
-                isCategoryDropdownFocused = false;
-            }   
-            else
-                PlayerNameInput.Select();
-        }
+        //if (Input.GetKeyDown(KeyCode.Tab))
+        //{
+        //    if (PlayerNameInput.isFocused)
+        //        TeamNameInput.Select();
+        //    else if (TeamNameInput.isFocused)
+        //        AgeInput.Select();
+        //    else if (AgeInput.isFocused)
+        //        EmailInput.Select();
+        //    else if (EmailInput.isFocused)
+        //    {
+        //        CategoryDropdown.Select();
+        //        isCategoryDropdownFocused = true;
+        //    }
+        //    else if (isCategoryDropdownFocused)
+        //    {
+        //        CreatePlayerButton.Select();
+        //        isCategoryDropdownFocused = false;
+        //    }   
+        //    else
+        //        PlayerNameInput.Select();
+        //}
     }
 
     private void SelectCategory(int index)
@@ -96,10 +96,10 @@ public class CreatePlayerDialog : MonoBehaviour
         var isAgeValid = AgeInput.text.Length > 0 && int.TryParse(AgeInput.text, out age);
         var isEmailValid = EmailInput.text.Length > 0;
 
-        PlayerNameInput.GetComponent<Image>().color = isNameValid ? ValidBgColor : InvalidBgColor;
-        TeamNameInput.GetComponent<Image>().color = isTeamNameValid ? ValidBgColor : InvalidBgColor;
-        AgeInput.GetComponent<Image>().color = isAgeValid ? ValidBgColor : InvalidBgColor;
-        EmailInput.GetComponent<Image>().color = isEmailValid ? ValidBgColor : InvalidBgColor;
+        if (!isNameValid) PlayerNameInput.Validate();
+        if (!isTeamNameValid) TeamNameInput.Validate();
+        if (!isAgeValid) AgeInput.Validate();
+        if (!isEmailValid) EmailInput.Validate();
 
         if (!isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
             return;
