@@ -18,7 +18,7 @@ public class EditRaceButton : MonoBehaviour
     private void EditRace()
     {
         var go = ObjectPool.GetInstance().GetObjectForType("CreateRaceDialog", true);
-        go.GetComponent<CreateRaceDialog>().EditCurrentRace();
+        go.GetComponent<CreateRaceDialog>().Initialize().EditCurrentRace();
         DialogService.GetInstance().Show(go);
     }
 }

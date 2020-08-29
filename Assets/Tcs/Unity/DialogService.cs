@@ -57,7 +57,6 @@ public class DialogService : MonoBehaviour
             return;
 
         _dialogInstances.Remove(dialogRef);
-
         dialogRef.Close(data);
 
         if (pool)
@@ -65,8 +64,6 @@ public class DialogService : MonoBehaviour
         else
             Destroy(go);
         
-        
-
         Overlay.SetActive(false);
     }
 

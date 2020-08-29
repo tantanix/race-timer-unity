@@ -10,10 +10,10 @@ public class CreateRaceDialog : MonoBehaviour
     public Color32 ValidBgColor;
     public Color32 RequiredBgColor;
     public TMP_Text DialogTitleText;
-    public TMP_InputField RaceNameInput;
-    public TMP_InputField NumberOfStagesInput;
-    public TMP_InputField EventDateInput;
-    public TMP_InputField LocationInput;
+    public MatInput RaceNameInput;
+    public MatInput NumberOfStagesInput;
+    public MatInput EventDateInput;
+    public MatInput LocationInput;
     public Button CreateRaceButton;
     public Button CloseButton;
 
@@ -22,26 +22,28 @@ public class CreateRaceDialog : MonoBehaviour
         CreateRaceButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(_ => OnCreateRace());
+            .Subscribe(_ => CreateRace());
 
         CloseButton
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
-            .Subscribe(_ => OnClose());
+            .Subscribe(_ => Close());
     }
 
-    internal void CreateNewRace()
+    public CreateRaceDialog Initialize()
     {
-        RaceNameInput.text = "";
-        NumberOfStagesInput.text = "";
-        EventDateInput.text = "";
-        LocationInput.text = "";
+        RaceNameInput.Initialize();
+        NumberOfStagesInput.Initialize();
+        EventDateInput.Initialize();
+        LocationInput.Initialize();
 
         DialogTitleText.text = "Create Race";
         CreateRaceButton.GetComponentInChildren<TMP_Text>().text = "Create";
+
+        return this;
     }
 
-    public void EditCurrentRace()
+    public CreateRaceDialog EditCurrentRace()
     {
         var currentRace = RaceTimerServices.GetInstance().RaceService.CurrentRace;
         RaceNameInput.text = currentRace.Name;
@@ -53,26 +55,28 @@ public class CreateRaceDialog : MonoBehaviour
 
         DialogTitleText.text = "Edit Race";
         CreateRaceButton.GetComponentInChildren<TMP_Text>().text = "Edit";
+
+        return this;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (RaceNameInput.isFocused)
-                NumberOfStagesInput.Select();
-            else if (NumberOfStagesInput.isFocused)
-                EventDateInput.Select();
-            else if (EventDateInput.isFocused)
-                LocationInput.Select();
-            else if (LocationInput.isFocused)
+            if (RaceNameInput.InnerInput.isFocused)
+                NumberOfStagesInput.InnerInput.Select();
+            else if (NumberOfStagesInput.InnerInput.isFocused)
+                EventDateInput.InnerInput.Select();
+            else if (EventDateInput.InnerInput.isFocused)
+                LocationInput.InnerInput.Select();
+            else if (LocationInput.InnerInput.isFocused)
                 CreateRaceButton.Select();
             else
-                RaceNameInput.Select();
+                RaceNameInput.InnerInput.Select();
         }
     }
 
-    public void OnCreateRace()
+    public void CreateRace()
     {
         var numberOfStages = 0;
         var eventDate = DateTime.Now;
@@ -82,10 +86,10 @@ public class CreateRaceDialog : MonoBehaviour
         var isRaceNameValid = RaceNameInput.text.Length > 0;
         var isNumberOfStagesValid = NumberOfStagesInput.text.Length > 0 && int.TryParse(NumberOfStagesInput.text, out numberOfStages);
         var isEventDateValid = EventDateInput.text.Length > 0 && DateTime.TryParse(EventDateInput.text, culture, styles, out eventDate);
-        
-        RaceNameInput.GetComponent<Image>().color = isRaceNameValid ? ValidBgColor : RequiredBgColor;
-        NumberOfStagesInput.GetComponent<Image>().color = isNumberOfStagesValid ? ValidBgColor : RequiredBgColor;
-        EventDateInput.GetComponent<Image>().color = isEventDateValid ? ValidBgColor : RequiredBgColor;
+
+        if (!isRaceNameValid) RaceNameInput.Validate();
+        if (!isNumberOfStagesValid) NumberOfStagesInput.Validate();
+        if (!isEventDateValid) EventDateInput.Validate();
 
         if (!isRaceNameValid || !isNumberOfStagesValid || !isEventDateValid)
             return;
@@ -104,7 +108,7 @@ public class CreateRaceDialog : MonoBehaviour
         }
     }
 
-    private void OnClose()
+    private void Close()
     {
         DialogService.GetInstance().Close(gameObject, true);
     }

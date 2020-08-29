@@ -8,8 +8,9 @@ using UnityEngine.UI;
 
 public class CategoryTabButton : MonoBehaviour
 {
+    public RaceCategoryViewModel RaceCategory { get; private set; }
+
     private Button _button;
-    private RaceCategoryViewModel _raceCategory;
     private IDisposable _buttonSub;
     private IDisposable _raceCategoryLoadedSub;
 
@@ -18,30 +19,11 @@ public class CategoryTabButton : MonoBehaviour
         _button = GetComponent<Button>();
     }
 
-    private void CheckAndUpdateIfCategorySame(RaceCategory raceCategory)
-    {
-        if (raceCategory == null || _raceCategory == null)
-            return;
-
-        if (raceCategory.Id != _raceCategory.Id)
-        {
-            _button.interactable = true;
-            return;
-        }
-
-        _button.interactable = false;
-    }
-
-    private void LoadCategory()
-    {
-        RaceTimerServices.GetInstance().RaceService.LoadRaceCategory(_raceCategory.Id);
-    }
-
     public void SetRaceCategory(RaceCategoryViewModel raceCategory)
     {
         if (raceCategory != null)
         {
-            _raceCategory = raceCategory;
+            RaceCategory = raceCategory;
 
             GetComponentInChildren<TMP_Text>().text = raceCategory.Category.Name;
 
@@ -57,10 +39,29 @@ public class CategoryTabButton : MonoBehaviour
         }
         else
         {
-            _raceCategory = null;
+            RaceCategory = null;
             _buttonSub.Dispose();
             _raceCategoryLoadedSub.Dispose();
         }
-        
     }
+
+    private void CheckAndUpdateIfCategorySame(RaceCategory raceCategory)
+    {
+        if (raceCategory == null || RaceCategory == null)
+            return;
+
+        if (raceCategory.Id != RaceCategory.Id)
+        {
+            _button.interactable = true;
+            return;
+        }
+
+        _button.interactable = false;
+    }
+
+    private void LoadCategory()
+    {
+        RaceTimerServices.GetInstance().RaceService.LoadRaceCategory(RaceCategory.Id);
+    }
+
 }

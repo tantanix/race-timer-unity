@@ -18,7 +18,7 @@ public class CreateRaceButton : MonoBehaviour
     private void OpenCreateRaceDialog()
     {
         var go = ObjectPool.GetInstance().GetObjectForType("CreateRaceDialog", true);
-        go.GetComponent<CreateRaceDialog>().CreateNewRace();
+        go.GetComponent<CreateRaceDialog>().Initialize();
         DialogService.GetInstance().Show(go);
     }
 }

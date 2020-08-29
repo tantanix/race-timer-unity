@@ -30,6 +30,8 @@ namespace Tcs.RaceTimer.Services
         private readonly BehaviorSubject<RaceCategoryViewModel> _newRaceCategory = new BehaviorSubject<RaceCategoryViewModel>(null);
         private readonly BehaviorSubject<RacePlayerViewModel> _newRacePlayer = new BehaviorSubject<RacePlayerViewModel>(null);
 
+        private readonly Subject<string> _raceCategoryDeleted = new Subject<string>();
+
         public Race CurrentRace { get; private set; }
         public RaceCategory CurrentRaceCategory { get; private set; }
 
@@ -43,8 +45,8 @@ namespace Tcs.RaceTimer.Services
         public IObservable<RacePlayerViewModel> OnNewRacePlayer() => _newRacePlayer.AsObservable();
         public IObservable<RacePlayerViewModel> OnNewRaceCategoryPlayer() => _newRacePlayer
             .Where(x => x != null && CurrentRaceCategory != null && x.Category.Id == CurrentRaceCategory.CategoryId).AsObservable();
-
         public IObservable<RaceCategoryViewModel> OnNewRaceCategory() => _newRaceCategory.AsObservable();
+        public IObservable<string> OnRaceCategoryDeleted() => _raceCategoryDeleted.AsObservable();
 
         public RaceService(
             RaceRepository raceRepository,
@@ -206,11 +208,6 @@ namespace Tcs.RaceTimer.Services
             return result;
         }
 
-        public IEnumerable<Race> GetAllRaces()
-        {
-            return _raceRepository.GetAll();
-        }
-
         public Team CreateTeam(string name)
         {
             var newId = $"Team-{Guid.NewGuid()}";
@@ -348,41 +345,6 @@ namespace Tcs.RaceTimer.Services
             return null;
         }
 
-        public IEnumerable<RacePlayerViewModel> GetAllRacePlayers()
-        {
-            if (CurrentRace == null)
-                throw new RaceNotLoadedException();
-
-            var racePlayers = _racePlayerRepository.GetAll(CurrentRace.Id);
-            
-            return racePlayers.Select(rp => 
-                new RacePlayerViewModel
-                {
-                    Id = rp.Id,
-                    Race = CurrentRace,
-                    Category = _categoryRepository.Get(rp.CategoryId),
-                    Team = _teamRepository.Get(rp.TeamId),
-                    Player = _playerRepository.Get(rp.PlayerId),
-                    PlayerTimes = _racePlayerTimeRepository.GetAllByRaceCategoryPlayer(CurrentRace.Id, rp.CategoryId, rp.PlayerId).ToList()
-                });
-        }
-
-        public IEnumerable<RacePlayerViewModel> GetAllRaceCategoryPlayers()
-        {
-            if (CurrentRace == null)
-                throw new RaceNotLoadedException();
-
-            if (CurrentRaceCategory == null)
-                throw new RaceCategoryNotLoadedException();
-
-            return GetAllRaceCategoryPlayers(CurrentRaceCategory.CategoryId);
-        }
-
-        public IEnumerable<Player> GetAllPlayers()
-        {
-            return _playerRepository.GetAll();
-        }
-
         public Category CreateCategory(string name)
         {
             var newId = $"Category-{Guid.NewGuid()}";
@@ -400,9 +362,60 @@ namespace Tcs.RaceTimer.Services
             return category;
         }
 
+        public RaceCategory AddRaceCategory(string categoryName)
+        {
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
+
+            var race = _raceRepository.Get(CurrentRace.Id);
+            var category = _categoryRepository.FindByName(categoryName);
+            if (category == null)
+            {
+                category = CreateCategory(categoryName);
+            }
+
+            // Don't add it if it's already been added
+            var exists = _raceCategoryRepository.FindByCategory(race.Id, category.Id);
+            if (exists != null)
+                throw new CategoryAlreadyAddedToRaceException();
+
+            var newId = Guid.NewGuid().ToString();
+            var raceCategory = _raceCategoryRepository.Create(race.Id, new RaceCategory
+            {
+                Id = newId,
+                CategoryId = category.Id,
+                RaceId = race.Id
+            });
+
+            _newRaceCategory.OnNext(
+                new RaceCategoryViewModel
+                {
+                    Id = newId,
+                    Race = race,
+                    Category = category
+                });
+
+            return raceCategory;
+        }
+
+        public Category GetCategory(string categoryId)
+        {
+            return _categoryRepository.Get(categoryId);
+        }
+
+        public IEnumerable<Race> GetAllRaces()
+        {
+            return _raceRepository.GetAll();
+        }
+
         public IEnumerable<Category> GetAllCategories()
         {
             return _categoryRepository.GetAll();
+        }
+
+        public IEnumerable<Player> GetAllPlayers()
+        {
+            return _playerRepository.GetAll();
         }
 
         public IEnumerable<RaceCategoryViewModel> GetAllRaceCategories()
@@ -441,40 +454,44 @@ namespace Tcs.RaceTimer.Services
             return result;
         }
 
-        public RaceCategory AddRaceCategory(string categoryName)
+        public IEnumerable<RacePlayerViewModel> GetAllRacePlayers()
         {
             if (CurrentRace == null)
                 throw new RaceNotLoadedException();
 
-            var race = _raceRepository.Get(CurrentRace.Id);
-            var category = _categoryRepository.FindByName(categoryName);
-            if (category == null)
-            {
-                category = CreateCategory(categoryName);
-            }
-
-            // Don't add it if it's already been added
-            var exists = _raceCategoryRepository.FindByCategory(race.Id, category.Id);
-            if (exists != null)
-                throw new CategoryAlreadyAddedToRaceException();
-
-            var newId = Guid.NewGuid().ToString();
-            var raceCategory = _raceCategoryRepository.Create(race.Id, new RaceCategory
-            {
-                Id = newId,
-                CategoryId = category.Id,
-                RaceId = race.Id
-            });
-
-            _newRaceCategory.OnNext(
-                new RaceCategoryViewModel
+            var racePlayers = _racePlayerRepository.GetAll(CurrentRace.Id);
+            
+            return racePlayers.Select(rp => 
+                new RacePlayerViewModel
                 {
-                    Id = newId,
-                    Race = race,
-                    Category = category
+                    Id = rp.Id,
+                    Race = CurrentRace,
+                    Category = _categoryRepository.Get(rp.CategoryId),
+                    Team = _teamRepository.Get(rp.TeamId),
+                    Player = _playerRepository.Get(rp.PlayerId),
+                    PlayerTimes = _racePlayerTimeRepository.GetAllByRaceCategoryPlayer(CurrentRace.Id, rp.CategoryId, rp.PlayerId).ToList()
                 });
+        }
 
-            return raceCategory;
+        public IEnumerable<RacePlayerViewModel> GetAllRaceCategoryPlayers()
+        {
+            if (CurrentRace == null)
+                throw new RaceNotLoadedException();
+
+            if (CurrentRaceCategory == null)
+                throw new RaceCategoryNotLoadedException();
+
+            return GetAllRaceCategoryPlayers(CurrentRaceCategory.CategoryId);
+        }
+
+        public void DeleteRaceCategory(RaceCategory raceCategory)
+        {
+            var existingRaceCategory = _raceCategoryRepository.Get(raceCategory.Id);
+            if (existingRaceCategory != null)
+            {
+                _raceCategoryRepository.Delete(raceCategory.RaceId, raceCategory.Id);
+                _raceCategoryDeleted.OnNext(raceCategory.Id);
+            }
         }
     }
 }

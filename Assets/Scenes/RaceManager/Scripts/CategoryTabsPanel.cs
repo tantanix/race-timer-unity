@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.ViewModels;
 using UniRx;
@@ -34,6 +35,12 @@ public class CategoryTabsPanel : MonoBehaviour
             .OnNewRaceCategory()
             .TakeUntilDestroy(this)
             .Subscribe(AddRaceCategoryButton);
+
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRaceCategoryDeleted()
+            .TakeUntilDestroy(this)
+            .Subscribe(RemoveRaceCategoryButton);
     }
 
     private void LoadRaceCategories(Race race)
@@ -57,6 +64,22 @@ public class CategoryTabsPanel : MonoBehaviour
         go.transform.SetParent(CategoryButtonContainer, false);
 
         _buttonInstances.Add(go);
+    }
+
+    private void RemoveRaceCategoryButton(string raceCategoryId)
+    {
+        GameObject found = null;
+        foreach (var button in _buttonInstances)
+        {
+            if (button.GetComponent<CategoryTabButton>().RaceCategory.Id == raceCategoryId)
+            {
+                found = button;
+                ObjectPool.GetInstance().PoolObject(button);
+            }
+        }
+
+        if (found != null)
+            _buttonInstances.Remove(found);
     }
 
     private void ClearList()

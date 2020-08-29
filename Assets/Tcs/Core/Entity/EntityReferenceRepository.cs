@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -90,7 +89,6 @@ namespace Tcs.Core.Entity
                 list = new TEntityList();
 
             var exists = list.Ids.Contains(id);
-            
             if (exists)
                 return;
 
@@ -100,24 +98,24 @@ namespace Tcs.Core.Entity
             PlayerPrefs.SetString(key, json);
         }
 
-        public void Delete(string id)
+        public void Delete(string parentId, string id)
         {
             var data = PlayerPrefs.GetString(id, null);
             if (string.IsNullOrEmpty(data))
                 throw new EntityNotFoundException<TEntity>();
 
-            RemoveFromList(id);
+            RemoveFromList(parentId, id);
 
             Debug.Log($"{GetListKey(id)} Deleted (" + id + ")");
             PlayerPrefs.DeleteKey(id);
         }
 
-        private void RemoveFromList(string id)
+        private void RemoveFromList(string parentId, string id)
         {
             if (string.IsNullOrEmpty(id))
                 return;
 
-            var key = GetListKey(id);
+            var key = GetListKey(parentId);
             string listIds = PlayerPrefs.GetString(key, null);
             if (listIds == null)
                 return;

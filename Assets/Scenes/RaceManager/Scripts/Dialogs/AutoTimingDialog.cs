@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Tcs.Core.Validators;
+using System;
 using System.Collections.Generic;
 using Tcs.Unity;
 using UniRx;
@@ -33,7 +34,7 @@ public class AutoTimingDialog : MonoBehaviour
     private TimeSpan? _selectedStartRaceTimeOfDay;
     private TimeSpan? _selectedStartRaceAfterBreakTimeOfDay;
     
-    private void Start()
+    private void Awake()
     {
         StartRaceTimeOfDay
             .OnValueChanged
@@ -67,6 +68,14 @@ public class AutoTimingDialog : MonoBehaviour
             .OnClickAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(_ => SetTiming());
+
+        StartRaceTimeOfDay.AddValidator(timeOfDay => timeOfDay.CurrentTimeSpan.HasValue, "Start race time is required");
+        RiderIntervalInSecondsInput.AddValidator(Validators.RequiredAndValidNumberInputField, "Rider interval is required");
+        CategoryIntervalSecondsInput.AddValidator(Validators.RequiredAndValidNumberInputField, "Category interval is required");
+        StageIntervalSecondsInput.AddValidator(Validators.RequiredAndValidNumberInputField, "Stage interval is required");
+
+        AfterBreakTimeOfDay.AddValidator(timeOfDay => timeOfDay.CurrentTimeSpan.HasValue, "Start race time is required if you add a break");
+        StageAfterBreakDropdown.AddValidator(Validators.RequiredDropdown, "Stage is required if you add a break");
     }
 
     public void Initialize()
@@ -108,27 +117,18 @@ public class AutoTimingDialog : MonoBehaviour
     private void SetTiming()
     {
         var hasBreak = AddBreakToggle.isOn;
-        var isStartRaceTimeValid = _selectedStartRaceTimeOfDay.HasValue;
-        var isRiderIntervalValid = int.TryParse(RiderIntervalInSecondsInput.text, out int riderInterval);
-        var isCategoryIntervalValid = int.TryParse(CategoryIntervalSecondsInput.text, out int categoryInterval);
-        var isStageIntervalValid = int.TryParse(StageIntervalSecondsInput.text, out int stageInterval);
+        var isStartRaceTimeValid = StartRaceTimeOfDay.Validate();
+        var isRiderIntervalValid = RiderIntervalInSecondsInput.Validate();
+        var isCategoryIntervalValid = CategoryIntervalSecondsInput.Validate();
+        var isStageIntervalValid = StageIntervalSecondsInput.Validate();
 
-        if (!isStartRaceTimeValid) StartRaceTimeOfDay.Validate();
-        if (!isRiderIntervalValid) RiderIntervalInSecondsInput.Validate();
-        if (!isCategoryIntervalValid) CategoryIntervalSecondsInput.Validate();
-        if (!isStageIntervalValid) StageIntervalSecondsInput.Validate();
-        
         bool isStartTimeAfterBreakValid = true;
         bool isStageAfterBreakValid = true;
 
         if (hasBreak)
         {
-            isStartTimeAfterBreakValid = _selectedStartRaceAfterBreakTimeOfDay.HasValue;
-            isStageAfterBreakValid = _selectedStageAfterBreak.HasValue;
-
-            // TODO: Fix me
-            //if (!isStartTimeAfterBreakValid) AfterBreakTimeOfDay.Validate();
-            //StageAfterBreakDropdown.GetComponent<Image>().color = isStageAfterBreakValid ? ValidBgColor : InvalidBgColor;
+            isStartTimeAfterBreakValid = AfterBreakTimeOfDay.Validate();
+            isStageAfterBreakValid = StageAfterBreakDropdown.Validate();
         }
 
         if (!isStartRaceTimeValid || !isRiderIntervalValid || !isCategoryIntervalValid || !isStageIntervalValid || !isStartTimeAfterBreakValid || !isStageAfterBreakValid)
@@ -140,9 +140,9 @@ public class AutoTimingDialog : MonoBehaviour
                 .RaceService
                 .SetAutoTiming(
                     _selectedStartRaceTimeOfDay.Value,
-                    riderInterval,
-                    categoryInterval,
-                    stageInterval,
+                    int.Parse(RiderIntervalInSecondsInput.text),
+                    int.Parse(CategoryIntervalSecondsInput.text),
+                    int.Parse(StageIntervalSecondsInput.text),
                     hasBreak,
                     _selectedStartRaceAfterBreakTimeOfDay,
                     _selectedStageAfterBreak);
@@ -155,6 +155,9 @@ public class AutoTimingDialog : MonoBehaviour
 
     private void SelectStageAfterBreak(int index)
     {
+        if (_stagesAfterBreak.Count <= 0)
+            return;
+
         var selectedStage = _stagesAfterBreak[index];
         if (int.TryParse(selectedStage.Replace("Stage ", ""), out int stage))
         {
@@ -175,20 +178,14 @@ public class AutoTimingDialog : MonoBehaviour
         throw new UnityException("Not a valid stage");
     }
 
-    private void SetStartRaceTimeOfDay(TimeSpan timeSpan)
+    private void SetStartRaceTimeOfDay(TimeSpan? timeSpan)
     {
-        if (timeSpan.Ticks > 0)
-            _selectedStartRaceTimeOfDay = timeSpan;
-        else
-            _selectedStartRaceTimeOfDay = null;
+        _selectedStartRaceTimeOfDay = timeSpan;
     }
 
-    private void SetStartRaceAfterBreakTimeOfDay(TimeSpan timeSpan)
+    private void SetStartRaceAfterBreakTimeOfDay(TimeSpan? timeSpan)
     {
-        if (timeSpan.Ticks > 0)
-            _selectedStartRaceAfterBreakTimeOfDay = timeSpan;
-        else
-            _selectedStartRaceAfterBreakTimeOfDay = null;
+        _selectedStartRaceAfterBreakTimeOfDay = timeSpan;
     }
 
     private void ShowBreakOptions(bool isOn)

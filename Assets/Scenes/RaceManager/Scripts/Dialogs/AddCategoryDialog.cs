@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Tcs.Core.Validators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tcs.Unity;
@@ -20,15 +21,15 @@ public class AddCategoryDialog : MonoBehaviour
     public Color32 ValidBgColor = AppColors.FormFieldValid;
     public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
 
-    public TMP_Dropdown CategoryDropdown;
-    public TMP_InputField NameInput;
+    public MatDropdown CategoryDropdown;
+    public MatInput NameInput;
     public Button CreateButton;
     public Button CloseButton;
 
     private List<string> _categories = new List<string>();
     private string _selectedCategory;
 
-    void Start()
+    void Awake()
     {
         CreateButton
             .OnClickAsObservable()
@@ -36,6 +37,7 @@ public class AddCategoryDialog : MonoBehaviour
             .Subscribe(_ => CreateCategory());
 
         CategoryDropdown
+            .InnerDropdown
             .OnTmpValueChangedAsObservable()
             .TakeUntilDestroy(this)
             .Subscribe(index => SelectCategory(index));
@@ -45,26 +47,36 @@ public class AddCategoryDialog : MonoBehaviour
             .TakeUntilDestroy(this)
             .Subscribe(_ => Close());
 
-        NameInput
-            .OnValueChangedAsObservable()
-            .TakeUntilDestroy(this)
-            .Subscribe(NameInputValueChanged);
+        CategoryDropdown.AddValidator(Validators.RequiredDropdown, "Category is required");
+        NameInput.AddValidator(Validators.RequiredInputField, "Category name is required");
+    }
+
+    public void Initialize()
+    {
+        _selectedCategory = "";
+        NameInput.text = "";
+        NameInput.gameObject.SetActive(false);
+
+        InitializeCategoryDropdown();
     }
 
     private void CreateCategory()
     {
+        var isCategoryValid = CategoryDropdown.Validate();
+        if (!isCategoryValid)
+            return;
+
         string name;
         if (_selectedCategory == CreateNewCategoryOption)
+        {
+            var isNameValid = NameInput.Validate();
+            if (!isNameValid)
+                return;
+
             name = NameInput.text;
+        }
         else
             name = _selectedCategory;
-
-        var isNameValid = name.Length > 0;
-        
-        NameInput.GetComponent<Image>().color = isNameValid ? ValidBgColor : InvalidBgColor;
-        
-        if (!isNameValid)
-            return;
 
         try
         {
@@ -80,11 +92,6 @@ public class AddCategoryDialog : MonoBehaviour
         }
     }
 
-    private void NameInputValueChanged(string value)
-    {
-        CreateButton.interactable = value.Length > 0;
-    }
-
     private void SelectCategory(int index)
     {
         if (!_categories.Any())
@@ -93,38 +100,26 @@ public class AddCategoryDialog : MonoBehaviour
         _selectedCategory = _categories[index];
         if (_selectedCategory == CreateNewCategoryOption)
         {
-            CreateButton.interactable = false;
             NameInput.gameObject.SetActive(true);
             _selectedCategory = CreateNewCategoryOption;
         }
         else if (_selectedCategory == SelectCategoryOption)
         {
-            CreateButton.interactable = false;
             NameInput.gameObject.SetActive(false);
             NameInput.text = "";
             _selectedCategory = SelectCategoryOption;
         }
         else
         {
-            CreateButton.interactable = true;
             NameInput.gameObject.SetActive(false);
         }
+
+        CategoryDropdown.Validate();
     }
 
     private void Close()
     {
         DialogService.GetInstance().Close(gameObject, true);
-    }
-
-    public void Initialize()
-    {
-        _selectedCategory = "";
-        NameInput.text = "";
-        NameInput.gameObject.SetActive(false);
-
-        InitializeCategoryDropdown();
-
-        CreateButton.interactable = false;
     }
 
     private void InitializeCategoryDropdown()
@@ -146,7 +141,7 @@ public class AddCategoryDialog : MonoBehaviour
 
         _categories.Add(CreateNewCategoryOption);
 
-        CategoryDropdown.ClearOptions();
-        CategoryDropdown.AddOptions(_categories);
+        CategoryDropdown.InnerDropdown.ClearOptions();
+        CategoryDropdown.InnerDropdown.AddOptions(_categories);
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Tcs.Core;
 using Tcs.Unity;
 using TMPro;
 using UniRx;
@@ -7,17 +9,20 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MatTimeOfDay : MonoBehaviour
+public class MatTimeOfDay : MonoBehaviour, IValidate<TimeOfDayInput>
 {
     [System.Serializable]
-    public class TimeOfDayEvent : UnityEvent<TimeSpan>
+    public class TimeOfDayEvent : UnityEvent<TimeSpan?>
     {
         public TimeOfDayEvent() { }
     }
 
-    public Color32 ValidBgColor = AppColors.FormFieldValid;
-    public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
 
+    public string ErrorMessage { get; private set; }
+    public bool IsValid { get; private set; }
+
+
+    public Color32 InvalidBgColor = AppColors.FormFieldInvalid;
     public TimeOfDayEvent OnValueChanged = new TimeOfDayEvent();
     public Transform InputTransform;
     public Button Button;
@@ -32,6 +37,7 @@ public class MatTimeOfDay : MonoBehaviour
     private Color32 _lineDefaultColor;
     private Color32 _labelTextDefaultColor;
     private TimeSpan? _currentTime;
+    private readonly List<Tuple<Func<TimeOfDayInput, bool>, string>> _validators = new List<Tuple<Func<TimeOfDayInput, bool>, string>>();
 
     private void Awake()
     {
@@ -70,7 +76,7 @@ public class MatTimeOfDay : MonoBehaviour
         Line.color = _lineDefaultColor;
     }
 
-    public void Validate()
+    public bool Validate()
     {
         if (TimeOfDayInput.isActiveAndEnabled)
         {
@@ -78,21 +84,38 @@ public class MatTimeOfDay : MonoBehaviour
             TimeOfDayInput.gameObject.SetActive(false);
         }
 
-        var requiredPassed = _currentTime.HasValue;
-        if (IsRequired)
+        IsValid = true;
+        foreach (var validator in _validators)
         {
-            LabelText.gameObject.SetActive(requiredPassed);
-            PlaceholderText.gameObject.SetActive(!requiredPassed);
+            IsValid &= validator.Item1(TimeOfDayInput);
+            if (!IsValid)
+            {
+                ErrorMessage = validator.Item2;
+                ValidityUpdate(false);
 
-            Line.color = requiredPassed ? _lineDefaultColor : InvalidBgColor;
-            ErrorText.gameObject.SetActive(!requiredPassed);
+                return false;
+            }
         }
-        else
-        {
-            LabelText.gameObject.SetActive(requiredPassed);
-            PlaceholderText.gameObject.SetActive(!requiredPassed);
-            ErrorText.gameObject.SetActive(false);
-        }
+
+        ErrorMessage = "";
+        ValidityUpdate(true);
+
+        return true;
+    }
+
+    public void AddValidator(Func<TimeOfDayInput, bool> validator, string errorMessage)
+    {
+        _validators.Add(Tuple.Create(validator, errorMessage));
+    }
+
+    private void ValidityUpdate(bool isValid)
+    {
+        ErrorText.text = ErrorMessage;
+        LabelText.gameObject.SetActive(isValid);
+        PlaceholderText.gameObject.SetActive(!isValid);
+
+        Line.color = isValid ? _lineDefaultColor : InvalidBgColor;
+        ErrorText.gameObject.SetActive(!isValid);
     }
 
     private void SaveTimeSpan(TimeSpan? timeSpan)
@@ -124,6 +147,8 @@ public class MatTimeOfDay : MonoBehaviour
         InputTransform.gameObject.SetActive(true);
         TimeOfDayInput.gameObject.SetActive(false);
 
+        OnValueChanged.Invoke(timeSpan);
+
         Validate();
     }
 
@@ -132,4 +157,5 @@ public class MatTimeOfDay : MonoBehaviour
         InputTransform.gameObject.SetActive(false);
         TimeOfDayInput.gameObject.SetActive(true);
     }
+
 }

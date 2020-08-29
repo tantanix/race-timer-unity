@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using Assets.Tcs.Core.Validators;
 
 public class CreatePlayerForm
 {
@@ -27,30 +28,21 @@ public class CreatePlayerDialog : MonoBehaviour
     public MatInput TeamNameInput;
     public MatInput AgeInput;
     public MatInput EmailInput;
-    public TMP_Dropdown CategoryDropdown;
+    public MatDropdown CategoryDropdown;
     public Button CreatePlayerButton;
     public Button CloseButton;
 
-    private bool isCategoryDropdownFocused = false;
     private List<string> _categories = new List<string>();
     private string _selectedCategory;
 
-    void Start()
+    void Awake()
     {
-        CreatePlayerButton
-            .OnClickAsObservable()
-            .TakeUntilDestroy(this)
-            .Subscribe(_ => CreatePlayer());
-
-        CategoryDropdown
-            .OnTmpValueChangedAsObservable()
-            .TakeUntilDestroy(this)
-            .Subscribe(index => SelectCategory(index));
-
-        CloseButton
-            .OnClickAsObservable()
-            .TakeUntilDestroy(this)
-            .Subscribe(_ => Close());
+        PlayerNameInput.AddValidator(Validators.RequiredInputField, "Player name is required");
+        TeamNameInput.AddValidator(Validators.RequiredInputField, "Team name is required");
+        AgeInput.AddValidator(Validators.RequiredAndValidNumberInputField, "Age value is not valid");
+        
+        EmailInput.AddValidator(Validators.RequiredInputField, "Email is required");
+        EmailInput.AddValidator(Validators.EmailInputField, "Email is not valid");
     }
 
     void Update()
@@ -88,18 +80,12 @@ public class CreatePlayerDialog : MonoBehaviour
 
     private void CreatePlayer()
     {
-        var age = 0;
         var category = _selectedCategory != SelectCategoryOption ? _selectedCategory : null;
 
-        var isNameValid = PlayerNameInput.text.Length > 0;
-        var isTeamNameValid = TeamNameInput.text.Length > 0;
-        var isAgeValid = AgeInput.text.Length > 0 && int.TryParse(AgeInput.text, out age);
-        var isEmailValid = EmailInput.text.Length > 0;
-
-        if (!isNameValid) PlayerNameInput.Validate();
-        if (!isTeamNameValid) TeamNameInput.Validate();
-        if (!isAgeValid) AgeInput.Validate();
-        if (!isEmailValid) EmailInput.Validate();
+        var isNameValid = PlayerNameInput.Validate();
+        var isTeamNameValid = TeamNameInput.Validate();
+        var isAgeValid = AgeInput.Validate();
+        var isEmailValid = EmailInput.Validate();
 
         if (!isNameValid || !isTeamNameValid || !isAgeValid || !isEmailValid)
             return;
@@ -108,7 +94,7 @@ public class CreatePlayerDialog : MonoBehaviour
         {
             var playerInfo = RaceTimerServices.GetInstance().RaceService.CreateRacePlayer(
                 PlayerNameInput.text,
-                age,
+                int.Parse(AgeInput.text),
                 EmailInput.text,
                 category,
                 TeamNameInput.text);
@@ -128,12 +114,32 @@ public class CreatePlayerDialog : MonoBehaviour
 
     public void Initialize()
     {
-        PlayerNameInput.text = "";
-        TeamNameInput.text = "";
-        AgeInput.text = "";
-        EmailInput.text = "";
+        PlayerNameInput.Initialize();
+        TeamNameInput.Initialize();
+        AgeInput.Initialize();
+        EmailInput.Initialize();
+        CategoryDropdown.Initialize();
 
         UpdateCategoryList();
+
+        CreatePlayerButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .TakeUntilDisable(this)
+            .Subscribe(_ => CreatePlayer());
+
+        CategoryDropdown
+            .InnerDropdown
+            .OnTmpValueChangedAsObservable()
+            .TakeUntilDestroy(this)
+            .TakeUntilDisable(this)
+            .Subscribe(index => SelectCategory(index));
+
+        CloseButton
+            .OnClickAsObservable()
+            .TakeUntilDestroy(this)
+            .TakeUntilDisable(this)
+            .Subscribe(_ => Close());
     }
 
     private void UpdateCategoryList()
@@ -148,8 +154,8 @@ public class CreatePlayerDialog : MonoBehaviour
             _categories.Add(raceCategory.Category.Name);
         }
 
-        CategoryDropdown.ClearOptions();
-        CategoryDropdown.AddOptions(_categories);
+        CategoryDropdown.InnerDropdown.ClearOptions();
+        CategoryDropdown.InnerDropdown.AddOptions(_categories);
     }
 
 }

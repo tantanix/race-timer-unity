@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.23921569}
+  m_Color: {r: 0.15686275, g: 0.17254902, b: 0.1882353, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1621,7 +1621,7 @@ GameObject:
   - component: {fileID: 5363289620605840406}
   - component: {fileID: 5363289620605840408}
   m_Layer: 5
-  m_Name: MaterialDropdown
+  m_Name: MatDropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1662,9 +1662,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29675a0af1bd33149b6c9348150b5f70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ValidBgColor:
-    serializedVersion: 2
-    rgba: 2552175642
   InvalidBgColor:
     serializedVersion: 2
     rgba: 4284638719
