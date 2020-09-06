@@ -42,7 +42,7 @@ namespace Tcs.RaceTimer.Repository
             }
 
             rpt.Time = model.Time;
-            return Update(model.RaceId, rpt);
+            return Update(rpt);
         }
 
     }

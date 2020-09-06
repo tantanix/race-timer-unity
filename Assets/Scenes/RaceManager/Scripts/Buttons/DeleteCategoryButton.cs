@@ -7,8 +7,7 @@ using UnityEngine.UI;
 public class DeleteCategoryButton : MonoBehaviour
 {
     private Button _button;
-    private RaceCategory _raceCategory;
-
+    
     private void Awake()
     {
         _button = GetComponent<Button>();

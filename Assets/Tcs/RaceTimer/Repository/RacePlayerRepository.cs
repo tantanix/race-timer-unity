@@ -1,4 +1,5 @@
-﻿using Tcs.Core.Entity;
+﻿using System.Linq;
+using Tcs.Core.Entity;
 using Tcs.RaceTimer.Models;
 
 namespace Tcs.RaceTimer.Repository
@@ -10,13 +11,13 @@ namespace Tcs.RaceTimer.Repository
         public RacePlayer Find(string raceId, string teamId, string playerId)
         {
             var racePlayers = GetAll(raceId);
-            foreach (var racePlayer in racePlayers)
-            {
-                if (racePlayer.TeamId == teamId && racePlayer.PlayerId == playerId)
-                    return racePlayer;
-            }
+            return racePlayers.SingleOrDefault(x => x.RaceId == raceId && x.TeamId == teamId && x.PlayerId == playerId);
+        }
 
-            return null;
+        public RacePlayer Find(string raceId, string teamId, string categoryId, string playerId)
+        {
+            var racePlayers = GetAll(raceId);
+            return racePlayers.SingleOrDefault(x => x.RaceId == raceId && x.TeamId == teamId && x.CategoryId == categoryId && x.PlayerId == playerId);
         }
     }
 }

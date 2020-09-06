@@ -6,6 +6,8 @@ using System.Linq;
 using UniRx;
 using Tcs.RaceTimer.ViewModels;
 using Tcs.RaceTimer.Exceptions;
+using Dawn;
+using System.Net.Mail;
 
 namespace Tcs.RaceTimer.Services
 {
@@ -68,12 +70,15 @@ namespace Tcs.RaceTimer.Services
 
         public void LoadRace(string raceId)
         {
+            Guard.Argument(raceId, nameof(raceId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+
             CurrentRace = _raceRepository.Get(raceId);
             _currentRace.OnNext(CurrentRace);
 
             // Load first category
             var raceCategories = _raceCategoryRepository.GetAll(raceId);
-            if (raceCategories != null && raceCategories.Any())
+            if (raceCategories != null)
             {
                 var firstCategory = raceCategories.First();
                 LoadRaceCategory(firstCategory.Id);
@@ -86,6 +91,9 @@ namespace Tcs.RaceTimer.Services
 
         public void LoadRaceCategory(string raceCategoryId)
         {
+            Guard.Argument(raceCategoryId, nameof(raceCategoryId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+
             CurrentRaceCategory = _raceCategoryRepository.Get(raceCategoryId);
             _currentRaceCategory.OnNext(CurrentRaceCategory);
         }
@@ -99,6 +107,13 @@ namespace Tcs.RaceTimer.Services
             TimeSpan? startTimeAfterBreak,
             int? stageAfterBreak)
         {
+            Guard.Argument(playerIntervalSeconds, nameof(playerIntervalSeconds))
+                .NotZero().NotNegative();
+            Guard.Argument(categoryIntervalSeconds, nameof(categoryIntervalSeconds))
+                .NotZero().NotNegative();
+            Guard.Argument(stageIntervalSeconds, nameof(stageIntervalSeconds))
+                .NotZero().NotNegative();
+
             TimeSpan date = startTime;
             TimeSpan previousStageStartTime;
             int stage = 1;
@@ -157,26 +172,29 @@ namespace Tcs.RaceTimer.Services
                 date = previousStageStartTime.Add(new TimeSpan(0, 0, stageIntervalSeconds));
 
             } while (++stage <= CurrentRace.Stages);
+
+            // Refresh current race category
+            _currentRaceCategory.OnNext(CurrentRaceCategory);
         }
 
         public Race CreateRace(string name, long eventDate, int stages, string location)
         {
             var id = $"Race-{Guid.NewGuid()}";
-            var newRace = _raceRepository.Create(
-                new Race
-                {
-                    Id = id,
-                    Name = name,
-                    EventDate = eventDate,
-                    Stages = stages,
-                    Location = location
-                });
-            _newRace.OnNext(newRace);
+            var newRace = CreateRace(id, name, eventDate, stages, location);
             return newRace;
         }
 
         public Race CreateRace(string id, string name, long eventDate, int stages, string location)
         {
+            Guard.Argument(id, nameof(id))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(name, nameof(name))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(eventDate, nameof(eventDate))
+                .NotZero().NotNegative();
+            Guard.Argument(stages, nameof(stages))
+                .NotZero().NotNegative();
+            
             var newRace = _raceRepository.Create(
                 new Race
                 {
@@ -192,6 +210,15 @@ namespace Tcs.RaceTimer.Services
 
         public RacePlayerTime CreateRacePlayerTime(string raceId, string playerId, string categoryId, int stage, LogTime logTime, TimeType timeType)
         {
+            Guard.Argument(raceId, nameof(raceId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(playerId, nameof(playerId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(categoryId, nameof(categoryId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(stage, nameof(stage))
+                .NotZero().NotNegative();
+
             var newId = Guid.NewGuid().ToString();
             var racePlayerTime = new RacePlayerTime
             {
@@ -201,7 +228,7 @@ namespace Tcs.RaceTimer.Services
                 CategoryId = categoryId,
                 Stage = stage,
                 Time = logTime,
-                Type = TimeType.Start
+                Type = timeType
             };
 
             var result = _racePlayerTimeRepository.CreateOrUpdate(racePlayerTime);
@@ -216,11 +243,10 @@ namespace Tcs.RaceTimer.Services
 
         public Team CreateTeam(string id, string name)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Team id cannot be null or empty or whitespace");
-
-            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Team name cannot be null or empty or whitespace");
+            Guard.Argument(id, nameof(id))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(name, nameof(name))
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var team = _teamRepository.Create(
                 new Team
@@ -240,17 +266,14 @@ namespace Tcs.RaceTimer.Services
 
         public Player CreatePlayer(string id, string name, int age, string email)
         {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Player id cannot be null or empty or whitespace");
-
-            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("name cannot be null or empty or whitespace.");
-
-            if (age <= 0)
-                throw new ArgumentException("age cannot be zero or less.");
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("email cannot be null or empty or whitespace.");
+            Guard.Argument(id, nameof(id))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(name, nameof(name))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(age, nameof(age))
+                .NotZero().NotNegative();
+            Guard.Argument(email, nameof(email))
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var player = _playerRepository.Create(
                 new Player
@@ -275,14 +298,18 @@ namespace Tcs.RaceTimer.Services
             if (CurrentRace == null)
                 throw new RaceNotLoadedException();
 
-            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("name cannot be null or empty or whitespace.");
-
-            if (age <= 0)
-                throw new ArgumentException("age cannot be zero or less.");
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("email cannot be null or empty or whitespace.");
+            Guard.Argument(id, nameof(id))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(name, nameof(name))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(age, nameof(age))
+                .NotZero().NotNegative();
+            Guard.Argument(email, nameof(email))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(categoryName, nameof(categoryName))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(teamName, nameof(teamName))
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var player = _playerRepository.FindByName(name);
             if (player == null)
@@ -336,8 +363,6 @@ namespace Tcs.RaceTimer.Services
                         Category = category,
                         Player = player
                     });
-                UnityEngine.Debug.Log(player.Id);
-                UnityEngine.Debug.Log(string.Join(", ", GetAllRacePlayers().Select(x => x.Player.Id)));
 
                 return racePlayer;
             }
@@ -353,6 +378,11 @@ namespace Tcs.RaceTimer.Services
 
         public Category CreateCategory(string id, string name)
         {
+            Guard.Argument(id, nameof(id))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(name, nameof(name))
+                .NotNull().NotEmpty().NotWhiteSpace();
+
             var category = _categoryRepository.Create(new Category
             {
                 Id = id,
@@ -366,6 +396,9 @@ namespace Tcs.RaceTimer.Services
         {
             if (CurrentRace == null)
                 throw new RaceNotLoadedException();
+
+            Guard.Argument(categoryName, nameof(categoryName))
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var race = _raceRepository.Get(CurrentRace.Id);
             var category = _categoryRepository.FindByName(categoryName);
@@ -394,6 +427,14 @@ namespace Tcs.RaceTimer.Services
                     Race = race,
                     Category = category
                 });
+
+            // Load first category if there is only one category in the list
+            var raceCategories = _raceCategoryRepository.GetAll(CurrentRace.Id);
+            if (raceCategories.Count() == 1)
+            {
+                var firstCategory = raceCategories.First();
+                LoadRaceCategory(firstCategory.Id);
+            }
 
             return raceCategory;
         }
@@ -438,6 +479,9 @@ namespace Tcs.RaceTimer.Services
         {
             if (CurrentRace == null)
                 throw new RaceNotLoadedException();
+
+            Guard.Argument(categoryId, nameof(categoryId))
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var raceCategoryPlayers = _racePlayerRepository.GetAll(CurrentRace.Id).Where(x => x.CategoryId == categoryId);
             var result = raceCategoryPlayers
@@ -486,11 +530,47 @@ namespace Tcs.RaceTimer.Services
 
         public void DeleteRaceCategory(RaceCategory raceCategory)
         {
+            if (raceCategory == null)
+                throw new ArgumentNullException(nameof(raceCategory));
+
             var existingRaceCategory = _raceCategoryRepository.Get(raceCategory.Id);
             if (existingRaceCategory != null)
             {
+                // Delete race category players first
+                DeleteRaceCategoryPlayers(raceCategory.RaceId, raceCategory.CategoryId);
+
+                // Delete race category altogether
                 _raceCategoryRepository.Delete(raceCategory.RaceId, raceCategory.Id);
                 _raceCategoryDeleted.OnNext(raceCategory.Id);
+            }
+        }
+
+        public void DeleteRaceCategoryPlayers(string raceId, string categoryId)
+        {
+            Guard.Argument(raceId, nameof(raceId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(categoryId, nameof(categoryId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+
+            var raceCategoryPlayers = _racePlayerRepository.GetAll(CurrentRace.Id).Where(x => x.CategoryId == categoryId);
+            _racePlayerRepository.Delete(raceId, raceCategoryPlayers.Select(x => x.Id));
+        }
+
+        public void DeleteRacePlayer(string raceId, string categoryId, string teamId, string playerId)
+        {
+            Guard.Argument(raceId, nameof(raceId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(categoryId, nameof(categoryId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(teamId, nameof(teamId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(playerId, nameof(playerId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+
+            var racePlayer = _racePlayerRepository.Find(raceId, teamId, categoryId, playerId);
+            if (racePlayer != null)
+            {
+                _racePlayerRepository.Delete(raceId, racePlayer.Id);
             }
         }
     }
