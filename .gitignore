@@ -1,4 +1,6 @@
-/Assets/TextMesh Pro
+/[Aa]ssets/[Tt]extMesh Pro
+/[Aa]ssets/[Ss]tandaloneFileBrowser/[Ss]ample
+/[Aa]ssets/[Ss]tandaloneFileBrowser/[Ss]ample.meta
 
 # This .gitignore file should be placed at the root of your Unity project directory
 #
@@ -73,3 +75,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 /Assets/TextMesh Pro.meta
+/Assets/StandaloneFileBrowser/Sample.meta
