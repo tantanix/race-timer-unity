@@ -7,9 +7,18 @@ public class RaceScene : MonoBehaviour
     void Start()
     {
         if (RaceTimerServices.GetInstance() == null)
+        {
             SceneManager.LoadScene("MainScene");
+            return;
+        }
+        
+        OpenSelectStageDialog();
+    }
 
-        var controller = FindObjectOfType<RaceSceneController>();
-        controller.ChangeState(RaceSceneController.ScreenState.Race);
+    private void OpenSelectStageDialog()
+    {
+        var go = ObjectPool.GetInstance().GetObjectForType("SelectStageDialog", true);
+        go.GetComponent<SelectStageDialog>().Initialize();
+        DialogService.GetInstance().Show(go);
     }
 }

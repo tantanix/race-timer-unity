@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.ViewModels;
 using UniRx;
@@ -26,6 +27,12 @@ public class RacePlayersPanel : MonoBehaviour
             .OnNewRaceCategoryPlayer()
             .TakeUntilDestroy(this)
             .Subscribe(CreateRacePlayer);
+
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRaceCategoryDeleted()
+            .TakeUntilDestroy(this)
+            .Subscribe(RemoveAllCurrentRaceCategoryPlayers);
     }
 
     private void LoadCategoryPlayers(RaceCategory raceCategory)
@@ -68,5 +75,10 @@ public class RacePlayersPanel : MonoBehaviour
         go.transform.localScale = Vector3.one;
 
         _racePlayerInstances.Add(go);
+    }
+
+    private void RemoveAllCurrentRaceCategoryPlayers(string raceCategoryId)
+    {
+        ClearList();
     }
 }

@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using TMPro;
+using UnityEngine;
 
 public class DigitalClock : MonoBehaviour
 {
-    public Text Text;
+    public TMP_Text Text;
 
     private Clock _clock;
 

@@ -20,6 +20,7 @@ public class DialogService : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            DontDestroyOnLoad(this);
         }
         else if (_instance != this)
         {
@@ -30,6 +31,10 @@ public class DialogService : MonoBehaviour
     void Start()
     {
         Overlay.SetActive(false);
+
+        var position = transform.position;
+        position.z = 0;
+        transform.position = position;
     }
 
     public Dialog Show(GameObject go)

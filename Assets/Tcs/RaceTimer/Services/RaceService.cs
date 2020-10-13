@@ -23,6 +23,7 @@ namespace Tcs.RaceTimer.Services
 
         private readonly BehaviorSubject<Race> _currentRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<RaceCategory> _currentRaceCategory = new BehaviorSubject<RaceCategory>(null);
+        private readonly BehaviorSubject<int> _currentStage = new BehaviorSubject<int>(0);
 
         private readonly BehaviorSubject<Race> _newRace = new BehaviorSubject<Race>(null);
         private readonly BehaviorSubject<Player> _newPlayer = new BehaviorSubject<Player>(null);
@@ -37,8 +38,11 @@ namespace Tcs.RaceTimer.Services
         public Race CurrentRace { get; private set; }
         public RaceCategory CurrentRaceCategory { get; private set; }
 
+        public int CurrentStage { get; private set; }
+
         public IObservable<Race> OnRaceLoaded() => _currentRace.AsObservable();
         public IObservable<RaceCategory> OnRaceCategoryLoaded() => _currentRaceCategory.AsObservable();
+        public IObservable<int> OnStageSet() => _currentStage.AsObservable();
 
         public IObservable<Race> OnNewRace() => _newRace.AsObservable();
         public IObservable<Player> OnNewPlayer() => _newPlayer.AsObservable();
@@ -78,7 +82,7 @@ namespace Tcs.RaceTimer.Services
 
             // Load first category
             var raceCategories = _raceCategoryRepository.GetAll(raceId);
-            if (raceCategories != null)
+            if (raceCategories != null && raceCategories.Any())
             {
                 var firstCategory = raceCategories.First();
                 LoadRaceCategory(firstCategory.Id);
@@ -96,6 +100,12 @@ namespace Tcs.RaceTimer.Services
 
             CurrentRaceCategory = _raceCategoryRepository.Get(raceCategoryId);
             _currentRaceCategory.OnNext(CurrentRaceCategory);
+        }
+
+        public void SetStage(int stage)
+        {
+            CurrentStage = stage;
+            _currentStage.OnNext(stage);
         }
 
         public void SetAutoTiming(
@@ -173,7 +183,7 @@ namespace Tcs.RaceTimer.Services
 
             } while (++stage <= CurrentRace.Stages);
 
-            // Refresh current race category
+            // Emit race category changes
             _currentRaceCategory.OnNext(CurrentRaceCategory);
         }
 
@@ -232,6 +242,27 @@ namespace Tcs.RaceTimer.Services
             };
 
             var result = _racePlayerTimeRepository.CreateOrUpdate(racePlayerTime);
+            return result;
+        }
+
+        public RacePlayerTime CreateRacePlayerTime(string raceId, int stage, LogTime logTime, TimeType timeType)
+        {
+            Guard.Argument(raceId, nameof(raceId))
+                .NotNull().NotEmpty().NotWhiteSpace();
+            Guard.Argument(stage, nameof(stage))
+                .NotZero().NotNegative();
+
+            var newId = Guid.NewGuid().ToString();
+            var racePlayerTime = new RacePlayerTime
+            {
+                Id = newId,
+                RaceId = raceId,
+                Stage = stage,
+                Time = logTime,
+                Type = timeType
+            };
+
+            var result = _racePlayerTimeRepository.Create(raceId, racePlayerTime);
             return result;
         }
 
