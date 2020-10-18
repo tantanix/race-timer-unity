@@ -1,4 +1,5 @@
-﻿using Tcs.RaceTimer.Repository;
+﻿using Assets.Tcs.Unity;
+using Tcs.RaceTimer.Repository;
 using Tcs.RaceTimer.Services;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ public class RaceTimerServices : MonoBehaviour
 
     public RaceService RaceService;
     public DialogService DialogService => DialogService.GetInstance();
+    public TooltipService TooltipService => TooltipService.GetInstance();
     
     void Awake()
     {

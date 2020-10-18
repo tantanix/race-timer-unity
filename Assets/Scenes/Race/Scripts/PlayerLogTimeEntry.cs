@@ -19,6 +19,7 @@ public class PlayerLogTimeEntry : MonoBehaviour
     public TMP_InputField PlayerNoInput;
     public Button DeleteButton;
     public Button EditButton;
+    public Button StatusInfoButton;
 
     public RacePlayerTimeViewModel RacePlayerTime
     {
@@ -88,6 +89,7 @@ public class PlayerLogTimeEntry : MonoBehaviour
 
     private void UpdateStatus(PlayerLogTimeStatus? status)
     {
+        Debug.Log(status);
         if (status.HasValue)
         {
             var image = GetComponent<Image>();
@@ -102,10 +104,16 @@ public class PlayerLogTimeEntry : MonoBehaviour
             if (isInvalid)
             {
                 image.color = ColorInvalid;
+                StatusInfoButton.gameObject.SetActive(true);
             }
             else if (status == PlayerLogTimeStatus.Valid)
             {
                 image.color = ColorValid;
+                StatusInfoButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                StatusInfoButton.gameObject.SetActive(false);
             }
         }
     }
@@ -147,5 +155,23 @@ public class PlayerLogTimeEntry : MonoBehaviour
     private void EditPlayerLog()
     {
 
+    }
+
+    public void OnShowStatus(bool flag = true)
+    {
+        var tooltipText = "";
+        switch (RacePlayerTime.Status)
+        {
+            case PlayerLogTimeStatus.Duplicate:
+                tooltipText = $"Rider number is a duplicate";
+                break;
+            case PlayerLogTimeStatus.InvalidPlayerNo:
+                tooltipText = $"Rider number is invalid";
+                break;
+            case PlayerLogTimeStatus.PlayerNonExistent:
+                tooltipText = $"Rider does not exist";
+                break;
+        }
+        RaceTimerServices.GetInstance().TooltipService.Show(tooltipText, flag);
     }
 }
