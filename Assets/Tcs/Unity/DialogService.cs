@@ -63,6 +63,7 @@ public class DialogService : MonoBehaviour
 
         _dialogInstances.Remove(dialogRef);
         dialogRef.Close(data);
+        Destroy(dialogRef);
 
         if (pool)
             ObjectPool.GetInstance().PoolObject(go);

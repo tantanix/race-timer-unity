@@ -49,8 +49,14 @@ public class SelectStageDialog : MonoBehaviour
         StageButton5.gameObject.SetActive(stages >= 5);
     }
 
+    private void Close()
+    {
+        DialogService.GetInstance().Close(gameObject, true);
+    }
+
     private void SetStage(int stage)
     {
         RaceTimerServices.GetInstance().RaceService.SetStage(stage);
+        Close();
     }
 }

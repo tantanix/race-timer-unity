@@ -1,4 +1,5 @@
 ﻿using Dawn;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,20 +11,27 @@ namespace Tcs.Core.Entity
         where TEntityList : EntityList, new()
     {
         private readonly string _prefix;
+        private readonly string _idPrefix;
 
-        public EntityReferenceRepository(string prefix)
+        public EntityReferenceRepository(string prefix, string idPrefix)
         {
             _prefix = prefix;
+            _idPrefix = idPrefix;
+        }
+
+        public virtual string GenerateId()
+        {
+            return $"{_idPrefix}{System.Guid.NewGuid()}";
         }
 
         public TEntity Create(string parentId, TEntity model)
         {
-            Guard.Argument(parentId, nameof(parentId))
-                .NotNull().NotEmpty().NotWhiteSpace();
-            Guard.Argument(model, nameof(parentId))
-                .NotNull();
-            Guard.Argument(model.Id, nameof(model.Id))
-                .NotNull().NotEmpty().NotWhiteSpace();
+            if (string.IsNullOrEmpty(parentId) || string.IsNullOrWhiteSpace(parentId))
+                throw new ArgumentException("Parent id cannot be null or empty or whitespace");
+            if (string.IsNullOrEmpty(model.Id) || string.IsNullOrWhiteSpace(model.Id))
+                throw new EntityNotFoundException<TEntity>();
+            if (!model.Id.StartsWith(_idPrefix, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Invalid id: {model.Id}");
 
             var json = JsonUtility.ToJson(model);
             PlayerPrefs.SetString(model.Id, json);
@@ -46,8 +54,10 @@ namespace Tcs.Core.Entity
 
         public TEntity Get(string id)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
                 throw new EntityNotFoundException<TEntity>();
+            if (!id.StartsWith(_idPrefix, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Invalid id: {id}");
 
             string data = PlayerPrefs.GetString(id, null);
             if (string.IsNullOrEmpty(data))
@@ -105,6 +115,13 @@ namespace Tcs.Core.Entity
 
         public void Delete(string parentId, string id)
         {
+            if (string.IsNullOrEmpty(parentId) || string.IsNullOrWhiteSpace(parentId))
+                throw new ArgumentException("Parent id cannot be null or empty or whitespace");
+            if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("Id cannot be null or empty or whitespace");
+            if (!id.StartsWith(_idPrefix, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Invalid id: {id}");
+
             var data = PlayerPrefs.GetString(id, null);
             if (string.IsNullOrEmpty(data))
                 throw new EntityNotFoundException<TEntity>(id);
@@ -117,8 +134,16 @@ namespace Tcs.Core.Entity
 
         public void Delete(string parentId, IEnumerable<string> ids)
         {
+            if (string.IsNullOrEmpty(parentId) || string.IsNullOrWhiteSpace(parentId))
+                throw new ArgumentException("Parent id cannot be null or empty or whitespace");
+
             foreach (var id in ids)
             {
+                if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
+                    throw new ArgumentException("Id cannot be null or empty or whitespace");
+                if (!id.StartsWith(_idPrefix, StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException($"Invalid id: {id}");
+
                 var data = PlayerPrefs.GetString(id, null);
                 if (string.IsNullOrEmpty(data))
                     throw new EntityNotFoundException<TEntity>(id);

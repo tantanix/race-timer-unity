@@ -2,7 +2,7 @@
 using Tcs.Utils;
 using TMPro;
 
-namespace Assets.Tcs.Core.Validators
+namespace Tcs.Core.Validators
 {
     public static class Validators
     {

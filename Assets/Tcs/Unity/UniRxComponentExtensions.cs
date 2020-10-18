@@ -32,5 +32,10 @@ namespace Tcs.Unity
                 return i.OnValueChanged.AsObservable().Subscribe(observer);
             });
         }
+
+        public static IObservable<string> OnEndEditAsObservable(this TMP_InputField inputField)
+        {
+            return inputField.onEndEdit.AsObservable();
+        }
     }
 }

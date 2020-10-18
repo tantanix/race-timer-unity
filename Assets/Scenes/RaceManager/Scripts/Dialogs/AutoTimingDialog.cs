@@ -1,6 +1,6 @@
-﻿using Assets.Tcs.Core.Validators;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Tcs.Core.Validators;
 using Tcs.Unity;
 using UniRx;
 using UnityEngine;

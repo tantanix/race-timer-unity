@@ -21,6 +21,7 @@ public class LogPlayerButton : MonoBehaviour
         var clock = FindObjectOfType<Clock>();
         var raceService = RaceTimerServices.GetInstance().RaceService;
         var raceId = raceService.CurrentRace.Id;
-        raceService.CreateRacePlayerTime(raceId, 0, clock.CurrentTime, TimeType.End);
+        var stage = raceService.CurrentStage;
+        raceService.CreateRacePlayerTime(raceId, stage, clock.CurrentTime, TimeType.End);
     }
 }

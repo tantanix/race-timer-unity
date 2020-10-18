@@ -5,7 +5,7 @@ namespace Tcs.RaceTimer.Repository
 {
     public class TeamRepository : EntityRepository<Team, TeamList>
     {
-        public TeamRepository() : base("TeamListIds") { }
+        public TeamRepository() : base("TeamListIds", "T-") { }
 
         public Team FindByName(string teamName)
         {

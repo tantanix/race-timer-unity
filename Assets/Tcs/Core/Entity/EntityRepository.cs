@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -9,10 +10,17 @@ namespace Tcs.Core.Entity
         where TEntityList : EntityList, new()
     {
         private readonly string _listKey;
+        private readonly string _idPrefix;
 
-        public EntityRepository(string listKey)
+        public EntityRepository(string listKey, string idPrefix)
         {
             _listKey = listKey;
+            _idPrefix = idPrefix;
+        }
+
+        public virtual string GenerateId()
+        {
+            return $"{_idPrefix}{System.Guid.NewGuid()}";
         }
 
         public virtual TEntity Create(TEntity model)
@@ -32,6 +40,9 @@ namespace Tcs.Core.Entity
         {
             if (string.IsNullOrEmpty(id))
                 throw new EntityNotFoundException<TEntity>();
+
+            if (!id.StartsWith(_idPrefix, StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException($"Invalid id: {id}");
 
             string data = PlayerPrefs.GetString(id, null);
             if (string.IsNullOrEmpty(data))

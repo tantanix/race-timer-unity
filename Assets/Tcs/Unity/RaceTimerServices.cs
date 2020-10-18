@@ -12,6 +12,7 @@ public class RaceTimerServices : MonoBehaviour
     }
 
     public RaceService RaceService;
+    public DialogService DialogService => DialogService.GetInstance();
     
     void Awake()
     {

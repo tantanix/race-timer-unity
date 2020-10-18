@@ -7,7 +7,7 @@ namespace Tcs.RaceTimer.Repository
 {
     public class RaceCategoryRepository : EntityReferenceRepository<RaceCategory, RaceCategoryList>
     {
-        public RaceCategoryRepository() : base("RaceCategory-") { }
+        public RaceCategoryRepository() : base("RaceCategory-", "RC-") { }
 
         public RaceCategory FindByCategory(string raceId, string categoryId)
         {

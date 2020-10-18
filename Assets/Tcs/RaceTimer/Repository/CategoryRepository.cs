@@ -5,7 +5,7 @@ namespace Tcs.RaceTimer.Repository
 {
     public class CategoryRepository : EntityRepository<Category, CategoryList>
     {
-        public CategoryRepository() : base("CategoryListIds") { }
+        public CategoryRepository() : base("CategoryListIds", "C-") { }
 
         public Category FindByName(string name)
         {

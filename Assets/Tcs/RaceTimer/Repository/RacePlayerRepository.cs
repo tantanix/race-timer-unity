@@ -6,7 +6,7 @@ namespace Tcs.RaceTimer.Repository
 {
     public class RacePlayerRepository : EntityReferenceRepository<RacePlayer, RacePlayerList>
     {
-        public RacePlayerRepository() : base("RacePlayerList-") { }
+        public RacePlayerRepository() : base("RacePlayerList-", "RP-") { }
 
         public RacePlayer Find(string raceId, string teamId, string playerId)
         {
@@ -18,6 +18,12 @@ namespace Tcs.RaceTimer.Repository
         {
             var racePlayers = GetAll(raceId);
             return racePlayers.SingleOrDefault(x => x.RaceId == raceId && x.TeamId == teamId && x.CategoryId == categoryId && x.PlayerId == playerId);
+        }
+
+        public RacePlayer Find(string raceId, int playerNo)
+        {
+            var racePlayers = GetAll(raceId);
+            return racePlayers.SingleOrDefault(x => x.No == playerNo);
         }
     }
 }

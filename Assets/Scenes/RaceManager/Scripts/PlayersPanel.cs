@@ -27,7 +27,7 @@ public class PlayersPanel : MonoBehaviour
             .Subscribe(CreateRacePlayer);
     }
 
-    public void LoadPlayerList(Race race)
+    private void LoadPlayerList(Race race)
     {
         ClearList();
 

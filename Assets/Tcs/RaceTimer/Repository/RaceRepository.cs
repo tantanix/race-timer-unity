@@ -5,6 +5,6 @@ namespace Tcs.RaceTimer.Repository
 {
     public class RaceRepository : EntityRepository<Race, RaceList>
     {
-        public RaceRepository() : base("RaceListIds") { }
+        public RaceRepository() : base("RaceListIds", "R-") { }
     }
 }

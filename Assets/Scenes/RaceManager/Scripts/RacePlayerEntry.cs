@@ -32,6 +32,8 @@ public class RacePlayerEntry : MonoBehaviour
     {
         if (racePlayer != null)
         {
+            NumberText.text = racePlayer.No.ToString();
+
             NameText.text = racePlayer.Player.Name;
             TeamText.text = racePlayer.Team.Name;
 
