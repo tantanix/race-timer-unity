@@ -13,7 +13,7 @@ public class PlayerLogTimeEntry : MonoBehaviour
 {
     public Color ColorInvalid;
     public Color ColorValid;
-
+    public bool IsEditMode = false;
     public TMP_Text TimeText;
     public TMP_Text PlayerNoText;
     public TMP_InputField PlayerNoInput;
@@ -27,6 +27,9 @@ public class PlayerLogTimeEntry : MonoBehaviour
         set
         {
             _racePlayerTime = value;
+            IsEditMode = false;
+            PlayerNoInput.gameObject.SetActive(false);
+            PlayerNoInput.text = "";
 
             SetLogTime(_racePlayerTime.Time);
             SetPlayerNo(_racePlayerTime.PlayerNo);
@@ -35,28 +38,46 @@ public class PlayerLogTimeEntry : MonoBehaviour
     }
 
     private RacePlayerTimeViewModel _racePlayerTime;
+    private Subject<bool> _unsubscribe = new Subject<bool>();
 
     private void Awake()
     {
         PlayerNoInput.gameObject.SetActive(false);
     }
 
-    private void Start()
+    private void Update()
+    {
+        if (IsEditMode)
+        {
+            StatusInfoButton.gameObject.SetActive(false);
+            PlayerNoInput.gameObject.SetActive(true);
+            PlayerNoInput.Select();
+            PlayerNoInput.ActivateInputField();
+        }
+    }
+
+    public void Initialize()
     {
         DeleteButton
             .OnClickAsObservable()
-            .TakeUntilDestroy(this)
+            .TakeUntil(_unsubscribe)
             .Subscribe(_ => ShowConfirmationDialog());
 
         EditButton
             .OnClickAsObservable()
-            .TakeUntilDestroy(this)
+            .TakeUntil(_unsubscribe)
             .Subscribe(_ => EditPlayerLog());
 
         PlayerNoInput
             .OnEndEditAsObservable()
-            .TakeUntilDestroy(this)
+            .TakeUntil(_unsubscribe)
             .Subscribe(playerNo => OnFinishEditingPlayerNo(playerNo));
+    }
+
+    public void Deinitialize()
+    {
+        _unsubscribe.OnNext(true);
+        _unsubscribe.OnCompleted();
     }
 
     private void OnFinishEditingPlayerNo(string value)
@@ -64,6 +85,8 @@ public class PlayerLogTimeEntry : MonoBehaviour
         RaceTimerServices.GetInstance()
             .RaceService
             .UpdateRacePlayerTimePlayerNo(RacePlayerTime.Id, value);
+
+        IsEditMode = false;
     }
 
     private void SetLogTime(LogTime? time)
@@ -89,7 +112,6 @@ public class PlayerLogTimeEntry : MonoBehaviour
 
     private void UpdateStatus(PlayerLogTimeStatus? status)
     {
-        Debug.Log(status);
         if (status.HasValue)
         {
             var image = GetComponent<Image>();
@@ -115,6 +137,10 @@ public class PlayerLogTimeEntry : MonoBehaviour
             {
                 StatusInfoButton.gameObject.SetActive(false);
             }
+        }
+        else
+        {
+            StatusInfoButton.gameObject.SetActive(false);
         }
     }
 
@@ -149,12 +175,14 @@ public class PlayerLogTimeEntry : MonoBehaviour
     private void ConfirmDeletePlayerLog()
     {
         var raceService = RaceTimerServices.GetInstance().RaceService;
-        RaceTimerServices.GetInstance().RaceService.DeletePlayerLogTime(raceService.CurrentRace.Id, RacePlayerTime.Id);
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .DeletePlayerLogTime(raceService.CurrentRace.Id, RacePlayerTime.Id);
     }
 
     private void EditPlayerLog()
     {
-
+        IsEditMode = true;
     }
 
     public void OnShowStatus(bool flag = true)
@@ -172,6 +200,8 @@ public class PlayerLogTimeEntry : MonoBehaviour
                 tooltipText = $"Rider does not exist";
                 break;
         }
-        RaceTimerServices.GetInstance().TooltipService.Show(tooltipText, flag);
+        RaceTimerServices.GetInstance()
+            .TooltipService
+            .Show(tooltipText, flag);
     }
 }

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class SetPlayerNumberButton : MonoBehaviour
 {
-
     public TMP_InputField PlayerNoInput;
 
     private Button _button;
@@ -21,9 +20,6 @@ public class SetPlayerNumberButton : MonoBehaviour
 
         PlayerNoInput.interactable = false;
         _button.interactable = false;
-        
-        // TODO: During initialize, check if there's unassigned, enable/disable
-        // TODO: Listen for when there's a new unassigned, enable when it does
     }
 
     private void Start()

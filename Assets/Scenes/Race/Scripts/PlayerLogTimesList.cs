@@ -1,5 +1,4 @@
-﻿using Dawn;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Tcs.RaceTimer.Models;
 using Tcs.RaceTimer.ViewModels;
 using UniRx;
@@ -37,6 +36,12 @@ public class PlayerLogTimesList : MonoBehaviour
             .OnRacePlayerTimeUpdated()
             .TakeUntilDestroy(this)
             .Subscribe(racePlayerTime => UpdateRacePlayerTimeFromList(racePlayerTime));
+
+        RaceTimerServices.GetInstance()
+            .RaceService
+            .OnRacePaused()
+            .TakeUntilDestroy(this)
+            .Subscribe(_ => ClearList());
     }
 
     private void CreatePlayerLogTimeEntry(RacePlayerTimeViewModel racePlayerTime)
@@ -51,6 +56,7 @@ public class PlayerLogTimesList : MonoBehaviour
 
         _playerLogTimeInstances.Add(go);
 
+        go.GetComponent<PlayerLogTimeEntry>().Initialize();
         go.GetComponent<PlayerLogTimeEntry>().RacePlayerTime = racePlayerTime;
 
     }
@@ -78,9 +84,10 @@ public class PlayerLogTimesList : MonoBehaviour
         GameObject instanceToRemove = null;
         foreach (var instance in _playerLogTimeInstances)
         {
-            if (instance.GetComponent<PlayerLogTimeEntry>().RacePlayerTime.Id == racePlayerTimeId)
+            var playerLogTimeEntry = instance.GetComponent<PlayerLogTimeEntry>();
+            if (playerLogTimeEntry.RacePlayerTime.Id == racePlayerTimeId)
             {
-                instance.transform.SetParent(null);
+                playerLogTimeEntry.Deinitialize();
                 ObjectPool.GetInstance().PoolObject(instance);
 
                 instanceToRemove = instance;
@@ -114,7 +121,7 @@ public class PlayerLogTimesList : MonoBehaviour
     {
         foreach (var instance in _playerLogTimeInstances)
         {
-            instance.transform.SetParent(null);
+            instance.GetComponent<PlayerLogTimeEntry>().Deinitialize();
             ObjectPool.GetInstance().PoolObject(instance);
         }
 

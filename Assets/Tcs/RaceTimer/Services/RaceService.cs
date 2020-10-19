@@ -8,6 +8,7 @@ using Tcs.RaceTimer.ViewModels;
 using Tcs.RaceTimer.Exceptions;
 using Dawn;
 using Tcs.RaceTimer.Enums;
+using UnityEngine.SceneManagement;
 
 namespace Tcs.RaceTimer.Services
 {
@@ -38,6 +39,8 @@ namespace Tcs.RaceTimer.Services
         private readonly Subject<string> _racePlayerTimeDeleted = new Subject<string>();
         private readonly Subject<string> _raceCategoryDeleted = new Subject<string>();
 
+        private readonly Subject<bool> _racePaused = new Subject<bool>();
+
         public Race CurrentRace { get; private set; }
         public RaceCategory CurrentRaceCategory { get; private set; }
 
@@ -61,6 +64,8 @@ namespace Tcs.RaceTimer.Services
 
         public IObservable<RacePlayerTimeViewModel> OnRacePlayerTimeUpdated() => _racePlayerTimeUpdated.AsObservable();
 
+        public IObservable<bool> OnRacePaused() => _racePaused.AsObservable();
+
         public RaceService(
             RaceRepository raceRepository,
             PlayerRepository playerRepository,
@@ -77,6 +82,12 @@ namespace Tcs.RaceTimer.Services
             _raceCategoryRepository = raceCategoryRepository;
             _racePlayerTimeRepository = racePlayerTimeRepository;
             _racePlayerRepository = racePlayerRepository;
+        }
+
+        public void PauseRace()
+        {
+            _racePaused.OnNext(true);
+            SceneManager.LoadScene("RaceManagerScene");
         }
 
         public void LoadRace(string raceId)
@@ -624,7 +635,7 @@ namespace Tcs.RaceTimer.Services
             Guard.Argument(stage, nameof(stage))
                 .GreaterThan(0).LessThan(6);
             Guard.Argument(playerNo, nameof(playerNo))
-                .NotNull().NotEmpty();
+                .NotNull().NotEmpty().NotWhiteSpace();
 
             var unassignedRacePlayerTimes = GetAllUnassignedRacePlayerTimes(raceId, stage);
             if (unassignedRacePlayerTimes.Any())
@@ -632,11 +643,7 @@ namespace Tcs.RaceTimer.Services
                 var firstUnassignedRacePlayerTime = unassignedRacePlayerTimes.FirstOrDefault();
                 if (firstUnassignedRacePlayerTime != null)
                 {
-                    playerNo = playerNo.Trim();
-                    if (int.TryParse(playerNo, out var riderNo))
-                    {
-                        UpdateRacePlayerTimePlayerNo(firstUnassignedRacePlayerTime.Id, riderNo);
-                    }
+                    UpdateRacePlayerTimePlayerNo(firstUnassignedRacePlayerTime.Id, playerNo);
                 }
             }
         }
@@ -672,7 +679,7 @@ namespace Tcs.RaceTimer.Services
         public void UpdateRacePlayerTimePlayerNo(string racePlayerTimeId, string playerNo)
         {
             Guard.Argument(playerNo, nameof(playerNo))
-                .NotNull().NotEmpty();
+                .NotNull();
 
             playerNo = playerNo.Trim();
             if (int.TryParse(playerNo, out var riderNo))
